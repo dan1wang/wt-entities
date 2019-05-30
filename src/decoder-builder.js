@@ -170,15 +170,14 @@ function buildNumericCharRefDecoder() {
         $isEmpty = $j < 1;
       }
       if ($isEmpty) {
-          ${joinStr('$output', "'&'", '$seg')}; // Error: missing digit in numeric character reference
-          continue;
+        ${joinStr('$output', "'&'", '$seg')}; // Error: missing digit in numeric character reference
+        continue;
       }
       if (cc == ${';'.charCodeAt(0)}) {
-          j++;
-      } else if (strict) {
-          parseError("${ERRORS.MISSING_SEMICOLON.MSG}",${ERRORS.MISSING_SEMICOLON.CODE});
-          output += '&' + seg;
-          continue;
+        j++;
+      } else if (strict) {\
+        output += '&' + seg; Error: // missing semicolon after character reference
+        continue;
       }
       if (num > ${0x10FFFF}) {
           parseError("${ERRORS.OUT_OF_RANGE_CHAR_REF.MSG}",${ERRORS.OUT_OF_RANGE_CHAR_REF.CODE});
