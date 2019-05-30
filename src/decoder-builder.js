@@ -266,6 +266,9 @@ var decodeWTEntities = ${buildDecoder()}
 module.exports = {decodeWTEntities};
 `;
 
+fs.writeFileSync('./build/wt-entities.js', jsDecoderSource);
+
+target = 'php';
 const phpDecoderSource =
 `<?php
 
@@ -276,7 +279,4 @@ $decChar = ['0','1','2','3','4','5','6','7','8','9'];
 decodeWTEntities = ${buildDecoder()}
 
 ?>`
-
-fs.writeFileSync('./build/wt-entities.js', jsDecoderSource);
-target = 'php';
 fs.writeFileSync('./build/wt-entities.php', phpDecoderSource);
