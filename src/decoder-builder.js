@@ -5,27 +5,99 @@
  * https://html.spec.whatwg.org/multipage/parsing.html#character-reference-state
  */
 
-/*************************** Code overview ***************************/
-/*
-function(input, strict) {
-    var segments = input.split('&');
-    var output = '';
-    for (var i=1; i<segments.length; i++) {
-        seg = segments[i];
-        if (seg.charAt(0) == '#') {
-            // decode numeric char reference
-        } else {
-            // decode named char reference
-        }
-        output += '&' + seg; // fall back
-    }
-    return output;
-}
-*/
-
 const fs = require('fs');
-const { legacyEntitiesSorted, html4EntitiesSorted, html5EntitiesSorted } =
-    require('./entities-dict');
+const { html5EntitiesSorted } = require('./entities-dict');
+
+let target = 'javascript';
+
+// declare a variable
+const declare = (varName) => {
+  return target == 'php'
+    ? varName
+    : `var ${varName}`;
+};
+
+// get string.length expression
+const strLen = (v) => target == 'php'?`strlen(${v})`:`${v}.length`;
+
+// get array.length expression
+const arrayLen = (v) => target == 'php'?`count(${v})`:`${v}.length`;
+
+// get string.split expression
+const splitStr = (varName, seperator) => {
+  return target == 'php'
+    ? `explode('${seperator}', $${varName})`
+    : `${varName}.split('${seperator}')`;
+};
+
+// get string.charAt expression
+const charAt = (varName, pos) => {
+  return target == 'php'
+    ? `${varName}[${pos}]`
+    : `${varName}.charAt(${pos})`;
+};
+
+// get string.indexOf expression
+const searchStr = (varName, searchStr) => {
+  return target == 'php'
+    ? `strpos(${varName},${searchStr})`
+    : `${varName}.indexOf(${searchStr})`;
+};
+
+// get string.indexOf expression
+const searchArray = (varName, searchVal) => {
+  return target == 'php'
+    ? `array_search(${searchVal},${varName})`
+    : `${varName}.indexOf(${searchVal})`;
+};
+
+let searchArrayFailed = target == 'php'?'false':'-1';
+
+const subStr = (varName, start, end) => {
+  return target == 'php'
+    ? (end === undefined ? `substr(${varName},${start})||''` : `substr(${varName},${start},${end})||''` )
+    : (end === undefined ? `${varName}.substring(${start})` : `${varName}.substring(${start},${end})`);
+};
+
+const joinStr = (varName, ...strings) => {
+  let expr ='';
+  if (target == 'php') {
+    if (varName !== undefined) expr = varName + ' .= ';
+    expr += strings.join(' . ');
+  } else {
+    if (varName !== undefined) expr = varName + ' += ';
+    expr += strings.join(' + ');
+  }
+  return expr;
+};
+
+function charCode(s) { return s.charCodeAt(0); }
+
+function buildDecoder() {
+  return `function($input) {
+  if (${strLen('$input')} == 0) return '';
+
+  ${declare('$segments')} = ${splitStr('$input','&')};
+  if (${arrayLen('$segments')} == 1) return $input;
+
+  ${declare('$output')} = $segments[0];
+  ${declare('$j')} = 0;
+  ${declare('$i')} = 1;
+  for (; $i < ${arrayLen('$segments')}; $i++) {
+    ${declare('$seg')} = $segments[$i];
+    if (${charAt('$seg',0)} == '#') {
+      ${buildNumericCharRefDecoder()}
+    } else {
+      ${declare('$candidateLen')} = ${searchStr('$seg',"';'")};
+      ${declare('$candidateStr')} = ${subStr('$seg', 0, '$candidateLen')};
+      ${buildNamedCharRefDecoder()}
+    }
+    ${joinStr('$output', "'&'", '$seg')};
+  }
+  return $output;
+}`;
+
+}
 
 const ERRORS = {
   NULL_CHAR_REF:         { CODE: 0, MSG: "null character reference" },
@@ -37,7 +109,6 @@ const ERRORS = {
   UNKNOWN_NAMED_CHAR_REF:{ CODE: 7, MSG: "unknown named character reference" },
   MISSING_SEMICOLON:     { CODE: 9, MSG: "missing semicolon after character reference" },
 };
-
 function buildNumericCharRefDecoder() {
   // https://infra.spec.whatwg.org/#noncharacter
   const NON_CHARACTER = [
@@ -50,7 +121,7 @@ function buildNumericCharRefDecoder() {
   ];
 
   // https://html.spec.whatwg.org/multipage/parsing.html#numeric-character-reference-end-state
-  const C1_REPLACE = [
+  const C0_REPLACE = [
     { from: 0x80, to: 0x20AC },
     { from: 0x82, to: 0x201A },
     { from: 0x83, to: 0x0192 },
@@ -79,251 +150,133 @@ function buildNumericCharRefDecoder() {
     { from: 0x9E, to: 0x017E },
     { from: 0x9F, to: 0x0178 }
   ];
-  return `
-          j = 1;
-          var cc = seg.charCodeAt(1);
-          var num = 0;
-          var isEmpty;
-          if ((cc == ${'x'.charCodeAt(0)}) || (cc == ${'X'.charCodeAt(0)})) {
-              do {
-                  cc = seg.charCodeAt(++j);
-                  if ((cc > ${'0'.charCodeAt(0)-1}) && (cc < ${'9'.charCodeAt(0)+1})) { num = num * 16 + cc - ${'0'.charCodeAt(0)}; }
-                  else if ((cc > ${'a'.charCodeAt(0)-1}) && (cc < ${'f'.charCodeAt(0)+1})) { num = num * 16 + cc - ${'a'.charCodeAt(0) - 10}; }
-                  else if ((cc > ${'A'.charCodeAt(0)-1}) && (cc < ${'F'.charCodeAt(0)+1})) { num = num * 16 + cc - ${'A'.charCodeAt(0) - 10}; }
-                  else break;
-              } while (1)
-              isEmpty = j <= 2;
-          } else {
-              while (1) {
-                  if ((cc < ${'0'.charCodeAt(0)}) || (cc > ${'9'.charCodeAt(0)})) break;
-                  num = num * 10 + cc - ${'0'.charCodeAt(0)};
-                  cc = seg.charCodeAt(++j);
-              }
-              isEmpty = j < 1;
-          }
-          if (isEmpty) {
-              parseError("${ERRORS.MISSING_DIGIT.MSG}",${ERRORS.MISSING_DIGIT.CODE});
-              output += '&' + seg;
-              continue;
-          }
-          if (cc == ${';'.charCodeAt(0)}) {
-              j++;
-          } else if (strict) {
-              parseError("${ERRORS.MISSING_SEMICOLON.MSG}",${ERRORS.MISSING_SEMICOLON.CODE});
-              output += '&' + seg;
-              continue;
-          }
-          if (num > ${0x10FFFF}) {
-              parseError("${ERRORS.OUT_OF_RANGE_CHAR_REF.MSG}",${ERRORS.OUT_OF_RANGE_CHAR_REF.CODE});
-              output += '\\uFFFD' + seg.substring(j);
-          } else if (num == 0) {
-              parseError("${ERRORS.NULL_CHAR_REF.MSG}",${ERRORS.NULL_CHAR_REF.CODE});
-              output += '\\uFFFD' + seg.substring(j);
-          } else if ( (num > ${0xD800-1}) && (num < ${0xDFFF+1}) ) {
-              parseError("${ERRORS.SURROGATE_CHAR_REF.MSG}",${ERRORS.SURROGATE_CHAR_REF.CODE});
-              output += '\\uFFFD' + seg.substring(j);
-          } else {` + /* https://infra.spec.whatwg.org/#c0-control */ `
-              if (((num > ${0xFDD0-1}) && (num < ${0xFDEF+1})) || ([${NON_CHARACTER.join(',')}].indexOf(num) >= 0)) {
-                  parseError("${ERRORS.NON_CHARACTER.MSG}",${ERRORS.NON_CHARACTER.CODE});
-              } else if ((num == ${0x0D}) || (num < ${0x001F+1})) {
-                  parseError("${ERRORS.CTRL_CHARACTER.MSG}",${ERRORS.CTRL_CHARACTER.CODE});
-              } else if ((num > ${0x007F-1}) && (num < ${0x009F+1})) {
-                  parseError("${ERRORS.CTRL_CHARACTER.MSG}",${ERRORS.CTRL_CHARACTER.CODE});
-                  var k = [${C1_REPLACE.map(el => el.from).join(',')}].indexOf(num);
-                  if (k >= 0) num = [${C1_REPLACE.map(el => el.to).join(',')}][k];
-              }
-              output += String.fromCharCode(num) + seg.substring(j);
-          }
-          continue;`;
-}
 
-let target = 'javascript';
-
-// declare a variable
-const declare = (varName) => {
-  return target == 'php'
-    ? varName
-    : `var ${varName}`;
-};
-
-// get string.length expression
-const strLen = (v) => target == 'php'?`strlen(${v})`:`${v}.length`;
-
-// get array.length expression
-const arrayLen = (v) => target == 'php'?`count(${v})`:`${v}.length`;
-
-// get string.split expression
-const splitStr = (varName, seperator) => {
-  return target == 'php'
-    ? `explode('${seperator}', $${varName})`
-    : `${varName}.split('${seperator}');`;
-};
-
-// get string.charAt expression
-const charAt = (varName, pos) => {
-  return target == 'php'
-    ? `${varName}[${pos}]`
-    : `${varName}.charAt(${pos});`;
-};
-
-// get string.indexOf expression
-const strPos = (varName, searchStr) => {
-  return target == 'php'
-    ? `strpos(${varName},${searchStr})`
-    : `${varName}.indexOf(${searchStr});`;
-};
-
-function buildDecoder(entities) {
-  return `function($input) {
-  if (${strLen('$input')} == 0) return '';
-
-  ${declare('$segments')} = ${splitStr('$input','&')};
-  if (${arrayLen('$segments')} == 1) return $input;
-
-  ${declare('$output')} = $segments[0];
-  ${declare('$j')} = 0;
-  ${declare('$i')} = 1;
-  for (; $i < ${arrayLen('segments')}; $i++) {
-      ${declare('$seg')} = $segments[$i];
-      if (${charAt('$seg',0)} == '#') {` +
-         `${buildNumericCharRefDecoder()}
+  let parserSource =
+     `$j = 1;
+      ${declare('$char')} = ${charAt('$seg',1)};
+      ${declare('$nbr')} = 0;
+      ${declare('$isEmpty')} = false;
+      if (($char == 'x') || ($char == 'X')) {
+        do {
+          %%HEX_PARSER%%
+        } while (1);
+        $isEmpty = $j <= 2;
       } else {
-        ${declare('$candidateLen')} = ${strPos('$seg',"';'")};
-        ${declare('$candidateStr')} = $seg.substring(0, candidateLen)
-        %%NamedEntityParserCodeStrict%%
-        if (strict) {
-          if (candidateLen) parseError("${ERRORS.UNKNOWN_NAMED_CHAR_REF.MSG}",${ERRORS.UNKNOWN_NAMED_CHAR_REF.CODE});
-          else parseError("${ERRORS.MISSING_SEMICOLON.MSG}",${ERRORS.MISSING_SEMICOLON.CODE});
-        } else {
-          if (candidateStr == 'AMP') {
-              output += '&' + seg.substring(4); continue;
-          } else if (candidateStr == 'GT') {
-              output += '>' + seg.substring(3); continue;
-          } else if (candidateStr == 'LT') {
-              output += '<' + seg.substring(3); continue;
-          } else if (candidateStr == 'QUOT') {
-              output += '"' + seg.substring(5); continue;
-          }` +
-         `%%NamedEntityParserCodeQuirk%%
+        while (1) {
+          if ((cc < ${'0'.charCodeAt(0)}) || (cc > ${'9'.charCodeAt(0)})) break;
+          num = num * 10 + cc - ${'0'.charCodeAt(0)};
+          cc = $seg.charCodeAt(++j);
         }
+        $isEmpty = $j < 1;
       }
-      output += '&' + seg;
-  }
-  return output;
-}`;
+      if ($isEmpty) {
+          ${joinStr('$output', "'&'", '$seg')}; // Error: missing digit in numeric character reference
+          continue;
+      }
+      if (cc == ${';'.charCodeAt(0)}) {
+          j++;
+      } else if (strict) {
+          parseError("${ERRORS.MISSING_SEMICOLON.MSG}",${ERRORS.MISSING_SEMICOLON.CODE});
+          output += '&' + seg;
+          continue;
+      }
+      if (num > ${0x10FFFF}) {
+          parseError("${ERRORS.OUT_OF_RANGE_CHAR_REF.MSG}",${ERRORS.OUT_OF_RANGE_CHAR_REF.CODE});
+          output += '\\uFFFD' + seg.substring(j);
+      } else if (num == 0) {
+          parseError("${ERRORS.NULL_CHAR_REF.MSG}",${ERRORS.NULL_CHAR_REF.CODE});
+          output += '\\uFFFD' + seg.substring(j);
+      } else if ( (num > ${0xD800-1}) && (num < ${0xDFFF+1}) ) {
+          parseError("${ERRORS.SURROGATE_CHAR_REF.MSG}",${ERRORS.SURROGATE_CHAR_REF.CODE});
+          output += '\\uFFFD' + seg.substring(j);
+      } else {` + /* https://infra.spec.whatwg.org/#c0-control */ `
+          if (((num > ${0xFDD0-1}) && (num < ${0xFDEF+1})) || ([${NON_CHARACTER.join(',')}].indexOf(num) >= 0)) {
+              parseError("${ERRORS.NON_CHARACTER.MSG}",${ERRORS.NON_CHARACTER.CODE});
+          } else if ((num == ${0x0D}) || (num < ${0x001F+1})) {
+              parseError("${ERRORS.CTRL_CHARACTER.MSG}",${ERRORS.CTRL_CHARACTER.CODE});
+          } else if ((num > ${0x007F-1}) && (num < ${0x009F+1})) {
+              parseError("${ERRORS.CTRL_CHARACTER.MSG}",${ERRORS.CTRL_CHARACTER.CODE});
+              var k = [${C0_REPLACE.map(el => el.from).join(',')}].indexOf(num);
+              if (k >= 0) num = [${C0_REPLACE.map(el => el.to).join(',')}][k];
+          }
+          output += String.fromCharCode(num) + seg.substring(j);
+      }
+      continue;`;
+  const hexParserSource =
+       target == 'php'
+         ? `$cc  = $seg[++$j];
+         $k = array_search($cc, $hexChar);
+         if ($k == false) break;
+         else $nbr = $nbr * 16 + $hexDig[$k]`
+         : `var cc = $seg.charCodeAt(++$j);
+          if ((cc > ${charCode('0')-1}) && (cc < ${charCode('9')+1})) { $nbr = $nbr * 16 + $char - ${charCode('0')}; }
+          else if ((cc > ${charCode('a')-1}) && (cc < ${charCode('f')+1})) { $nbr = $nbr * 16 + cc - ${'a'.charCodeAt(0) - 10}; }
+          else if ((cc > ${charCode('A')-1}) && (cc < ${charCode('F')+1})) { $nbr = $nbr * 16 + cc - ${'A'.charCodeAt(0) - 10}; }
+          else break;`;
 
-    // Generate strict named entity parser
-    let namedEntityParserCodeStrict = '';
-    Object.keys(entities).sort( (a,b) => parseInt(a) - parseInt(b) ).forEach((entityLen) => {
-        entityLen = parseInt(entityLen);
-        const named = entities[entityLen].named;
-        const decoded = entities[entityLen].decoded;
-        if (namedEntityParserCodeStrict != '')
-            namedEntityParserCodeStrict += ' else ';
-        if (named.length > 2) {
-            namedEntityParserCodeStrict +=
-           `if (candidateLen == ${entityLen}) {
-                j = [${named.join(',')}].indexOf(candidateStr);
-                if (j >= 0) {
-                    output += [${decoded.join(',')}][j]
-                              + seg.substring(${entityLen+1});
-                    continue;
-                }
-            }`;
-        } else if (named.length == 2) {
-            namedEntityParserCodeStrict +=
-           `if (candidateLen == ${entityLen}) {
-                if (candidateStr == ${named[0]}) {
-                    output += ${decoded[0]} + seg.substring(${entityLen+1});
-                    continue;
-                } else if (candidateStr == ${named[1]}) {
-                    output += ${decoded[1]} + seg.substring(${entityLen+1});
-                    continue;
-                }
-            }`;
-        } else {
-            namedEntityParserCodeStrict +=
-           `if (candidateStr == ${named[0]}) {
-                output += ${decoded[0]} + seg.substring(${entityLen+1});
-                continue;
-            }`;
-        }
-    })
-
-    // Generate quirky named entity parser
-    let namedEntityParserCodeQuirk = '';
-
-    function indent4(codeBlock) {
-        return codeBlock.split('\n').map( (line) => '    ' + line ).join('\n');
-    }
-    Object.keys(legacyEntitiesSorted).sort( (a,b) => parseInt(a) - parseInt(b) ).reverse().forEach((entityLen) => {
-        let innerParserCode = '';
-        entityLen = parseInt(entityLen);
-        const named = legacyEntitiesSorted[entityLen].named;
-        const decoded = legacyEntitiesSorted[entityLen].decoded;
-        if (named.length > 2) {
-            innerParserCode =`
-                    j = [${named.join(',')}].indexOf(candidateStr);
-                    if (j >= 0) {
-                        output += [${decoded.join(',')}][j]
-                                  + seg.substring(${entityLen});
-                        continue;
-                    }`;
-        } else if (named.length == 2) {
-            innerParserCode =`
-                    if (candidateStr == ${named[0]}) {
-                        output += ${decoded[0]} + seg.substring(${entityLen});
-                        continue;
-                    } else if (candidateStr == ${named[1]}) {
-                        output += ${decoded[1]} + seg.substring(${entityLen});
-                        continue;
-                    }`;
-        } else {
-            innerParserCode =`
-                    if (candidateStr == ${named[0]}) {
-                        output += ${decoded[0]} + seg.substring(${entityLen});
-                        continue;
-                    }`;
-        }
-
-        namedEntityParserCodeQuirk =
-`                if (seg.length >= ${entityLen}) {
-                    candidateStr = seg.substring(0, ${entityLen});` +
-                    innerParserCode +
-                    (
-                        namedEntityParserCodeQuirk !== ''
-                            ? ('\n' + indent4(namedEntityParserCodeQuirk))
-                            : ''
-                    ) + `
-                }`;
-    })
-
-    decoderSource =  decoderSource.replace('%%NamedEntityParserCodeStrict%%', namedEntityParserCodeStrict);
-    decoderSource =  decoderSource.replace('%%NamedEntityParserCodeQuirk%%', '\n' + namedEntityParserCodeQuirk);
-    return decoderSource;
+  return parserSource.replace('%%HEX_PARSER%%', hexParserSource );
 }
 
-const decoderSource =
+function buildNamedCharRefDecoder() {
+  let parserSource = '';
+  const entities = html5EntitiesSorted;
+  Object.keys(entities).sort( (a,b) => parseInt(a) - parseInt(b) ).forEach((entityLen) => {
+    entityLen = parseInt(entityLen);
+    const named = entities[entityLen].named;
+    const decoded = entities[entityLen].decoded;
+    if (parserSource !== '') parserSource += ' else ';
+    if (named.length > 2) {
+      parserSource +=
+     `if ($candidateLen == ${entityLen}) {
+        $j = ${searchArray(`[${named.join(',')}]`, '$candidateStr')};
+        if ($j != ${searchArrayFailed}) {
+          ${joinStr('$output', `[${decoded.join(',')}][$j]`, subStr('$seg', entityLen+1))};
+          continue;
+        }
+      }`;
+    } else if (named.length == 2) {
+      parserSource +=
+     `if ($candidateLen == ${entityLen}) {
+        if ($candidateStr == ${named[0]}) {
+          ${joinStr('$output', decoded[0], subStr('$seg', entityLen+1))};
+          continue;
+        } else if ($candidateStr == ${named[1]}) {
+          ${joinStr('$output', decoded[1], subStr('$seg', entityLen+1))};
+          continue;
+        }
+      }`;
+    } else {
+      parserSource +=
+     `if ($candidateStr == ${named[0]}) {
+        ${joinStr('$output', decoded[0], subStr('$seg', entityLen+1))};
+        continue;
+      }`;
+    }
+  });
+  return parserSource;
+}
+
+const jsDecoderSource =
 `/* THIS IS GENERATED SOURCE. DO NOT EDIT */
 
 /* eslint-disable no-constant-condition */
 
-var ERRORS = {
-    NULL_CHAR_REF: ${ERRORS.NULL_CHAR_REF.CODE},
-    OUT_OF_RANGE_CHAR_REF: ${ERRORS.OUT_OF_RANGE_CHAR_REF.CODE},
-    SURROGATE_CHAR_REF:${ERRORS.SURROGATE_CHAR_REF.CODE},
-    NON_CHARACTER: ${ERRORS.NON_CHARACTER.CODE},
-    CTRL_CHARACTER: ${ERRORS.CTRL_CHARACTER.CODE},
-    MISSING_DIGIT: ${ERRORS.MISSING_DIGIT.CODE},
-    UNKNOWN_NAMED_CHAR_REF:${ERRORS.UNKNOWN_NAMED_CHAR_REF.CODE},
-    MISSING_SEMICOLON: ${ERRORS.MISSING_SEMICOLON.CODE},
-}
+var decodeWTEntities = ${buildDecoder()}
 
-var decodeHTML4Entities = ${buildDecoder(html4EntitiesSorted)}
+module.exports = {decodeWTEntities};
+`;
 
-var decodeHTML5Entities = ${buildDecoder(html5EntitiesSorted)}
+const phpDecoderSource =
+`<?php
 
-module.exports = {decodeHTML5Entities, decodeHTML4Entities, ERRORS};
-`
+$hexChar = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','A','B','C','D','E','F'];
+$hexDigit = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 10, 11, 12, 13, 14, 15];
+$decChar = ['0','1','2','3','4','5','6','7','8','9'];
 
-fs.writeFileSync('../lib/entities-decoder.js', decoderSource);
+decodeWTEntities = ${buildDecoder()}
+
+?>`
+
+fs.writeFileSync('./build/wt-entities.js', jsDecoderSource);
+target = 'php';
+fs.writeFileSync('./build/wt-entities.php', phpDecoderSource);
