@@ -229,7 +229,7 @@ function buildNumericCharRefDecoder() {
 			|| ( $codepoint >= 0xe000 && $codepoint <= 0xfffd )
 			|| ( $codepoint >= 0x10000 && $codepoint <= 0x10ffff );
       */
-  return parserSource.replace('%%HEX_PARSER%%', hexParserSource );
+  return parserSource;
 }
 
 let nameCharRefArrayCache; // storage of lookup arrays that we will cache
