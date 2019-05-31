@@ -2246,6 +2246,13 @@ const entities = {
   "&zwnj;": { "codepoints": [8204], "characters": "\u200C" }
 };
 
+// Character entity aliases accepted by MediaWiki
+// See mediawiki/includes/parser/Sanitizer.php
+// 'רלמ' => 'rlm',
+// 'رلم' => 'rlm',
+entities['&רלמ;'] = Object.assign({}, entities['&rlm;']);
+entities['&رلم;'] = Object.assign({}, entities['&rlm;']);
+
 function toEscapedStr(charCode) {
   const hex = charCode.toString(16).toUpperCase();
   if ((charCode >= 32) && (charCode <= 127)) {
@@ -2334,7 +2341,7 @@ const html4EntitiesList = [
   // considered part of HTML 4
   // note IE 5~9 also accepts "&apos" (without ";")
   "apos"
-]
+];
 
 // Html3 entities sorted by length
 const legacyEntitiesSorted = {};
@@ -2366,11 +2373,25 @@ html4EntitiesList.forEach( (el) => {
 
 // Html5 entities (sans legacy entites) sorted by length
 const html5EntitiesSorted = {};
+let keys = Object.keys(entitiesDict);
+// move frequently used &amp;, &gt;, &lt;, and &quot; to begining
+const amp = entitiesDict['&amp;'];
+const gt = entitiesDict['&gt;'];
+const lt = entitiesDict['&lt;'];
+const quot = entitiesDict['&quot;'];
+keys.splice(keys.indexOf('&amp;'),1);
+keys.splice(keys.indexOf('&gt;'),1);
+keys.splice(keys.indexOf('&lt;'),1);
+keys.splice(keys.indexOf('&quot;'),1);
+keys = [amp, gt, lt, quot].concat(keys);
+
 Object.keys(entitiesDict).forEach( (el) => {
   if ((el.charAt(el.length - 1) == ';') &&
       (el !== '&GT;') && (el !== '&AMP;') &&
       (el !== '&LT;') && (el !== '&QUOT;')
   ) {
+    // must use double quote to escape unicode
+    // https://php.net/manual/en/language.types.string.php#language.types.string.syntax.double
     const named = '"' + el.substring(1, el.length - 1) + '"';
     const decoded = '"' + entitiesDict[el] + '"';
     let len = el.length - 2;
@@ -2381,10 +2402,10 @@ Object.keys(entitiesDict).forEach( (el) => {
       html5EntitiesSorted[len] = {named: [named], decoded: [decoded] };
     }
   }
-})
+});
 
 module.exports = {
   legacyEntitiesSorted,
   html4EntitiesSorted,
   html5EntitiesSorted
-}
+};
