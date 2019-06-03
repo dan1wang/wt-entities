@@ -20,6 +20,7 @@ let searchArrayFailed = -1;
 let searchStrFailed = -1;
 let subStr;   // varName.substring(start, end)  / substr(varName, start, end)
 let joinStr;  // varName += s1 + s2 ...;        / varName .= s1 . s2 ...;
+let ReplacementChar; // '\uFFFD'
 function initLanguage(lang) {
   target = lang;
 
@@ -54,6 +55,8 @@ function initLanguage(lang) {
     }
     return expr;
   };
+
+  ReplacementChar = target !== 'php'?'\\u{FFFD}':'\\uFFFD';
 }
 
 function charCode(s) { return s.charCodeAt(0); }
@@ -74,40 +77,27 @@ function buildDecoderFunction() {
       ${buildNumericCharRefDecoder()}
     } else {
       ${declare('$candidateLen')} = ${searchStr('$seg',"';'")};
-      if ($candidateLen == ${searchStrFailed}) {
-        // Error: missing semicolon after character reference
+      if ($candidateLen == ${searchStrFailed}) {${''/*Error: missing semicolon after character reference*/}
         ${joinStr('$output', "'&'", '$seg')};
         continue;
       }
       ${declare('$candidateStr')} = ${subStr('$seg', 0, '$candidateLen')};
       ${buildNamedCharRefDecoder()}
-      // Error: unknown named character reference
     }
-    ${joinStr('$output', "'&'", '$seg')};
+    ${joinStr('$output', "'&'", '$seg')};${''/*Error: unknown named character reference*/}
   }
   return $output;
 }`;
 
 }
 
-const ERRORS = {
-  NULL_CHAR_REF:         { CODE: 0, MSG: "null character reference" },
-  OUT_OF_RANGE_CHAR_REF: { CODE: 1, MSG: "character reference outside unicode range" },
-  SURROGATE_CHAR_REF:    { CODE: 2, MSG: "surrogate character reference" },
-  NON_CHARACTER:         { CODE: 3, MSG: "non-character character reference" },
-  CTRL_CHARACTER:        { CODE: 4, MSG: "control character character reference" },
-  MISSING_DIGIT:         { CODE: 6, MSG: "missing digit in numeric character reference" },
-  UNKNOWN_NAMED_CHAR_REF:{ CODE: 7, MSG: "unknown named character reference" },
-  MISSING_SEMICOLON:     { CODE: 9, MSG: "missing semicolon after character reference" },
-};
 function buildNumericCharRefDecoder() {
   // According to HTML 5 standard, a numerical character reference to one
   // of the following non-characters is an error. However, browser should
-  // convert as-is
-  // See https://infra.spec.whatwg.org/#noncharacter
+  // convert as-is. See https://infra.spec.whatwg.org/#noncharacter
   //
   // 0xFDD0-0xFDEF
-  // 0xFFFF,
+  // 0xFFFE, 0xFFFF,
   // 0x1FFFE, 0x1FFFF, 0x2FFFE, 0x2FFFF, 0x3FFFE, 0x3FFFF, 0x4FFFE, 0x4FFFF,
   // 0x5FFFE, 0x5FFFF, 0x6FFFE, 0x6FFFF, 0x7FFFE, 0x7FFFF, 0x8FFFE, 0x8FFFF,
   // 0x9FFFE, 0x9FFFF, 0xAFFFE, 0xAFFFF, 0xBFFFE, 0xBFFFF, 0xCFFFE, 0xCFFFF,
@@ -148,24 +138,24 @@ function buildNumericCharRefDecoder() {
   ];
 
   const phpNumberParserSource =
-  `      $chr = $seg[1];
-        $j = 1;
-        if (($chr == 'x') || ($chr == 'X')) {
-          do {
-            $k = array_search($seg[++$j], $hexChar);
-            if ($k == false) break;
-            else $nbr = $nbr * 16 + $hexDig[$k]
-          } while (1);
-          $isEmpty = $j <= 2;
-        } else {
-          do {
-            $k = array_search($seg[$j], $decChar);
-            if ($k == false) break;
-            $nbr = $nbr * 10 + $k;
-            $j++;
-          } while (1)
-          $isEmpty = $j < 1;
-        }`;
+  `    $chr = $seg[1];
+      $j = 1;
+      if (($chr == 'x') || ($chr == 'X')) {
+        do {
+          $k = array_search($seg[++$j], $hexChar);
+          if ($k == false) break;
+          else $nbr = $nbr * 16 + $hexDig[$k]
+        } while (1);
+        $isEmpty = $j <= 2;
+      } else {
+        do {
+          $k = array_search($seg[$j], $decChar);
+          if ($k == false) break;
+          $nbr = $nbr * 10 + $k;
+          $j++;
+        } while (1)
+        $isEmpty = $j < 1;
+      }`;
 
   const jsNumberParserSource =
   `      var $cc = $seg.charCodeAt(1);
@@ -200,35 +190,24 @@ function buildNumericCharRefDecoder() {
         continue;
       }
       $j++;
-      if ($nbr > ${0x10FFFF}) { // Error: character reference outside unicode range
-        ${ joinStr('$output', "'\\uFFFD'", subStr('$seg','$j') )};
-      } else if ($nbr == 0) { // Error: null character reference
-        ${ joinStr('$output', "'\\uFFFD'", subStr('$seg','$j') )};
-      } else if ( ($nbr > ${0xD800-1}) && ($nbr < ${0xDFFF+1}) ) {
-        // Error: surrogate character reference
-        ${ joinStr('$output', "'\\uFFFD'", subStr('$seg','$j') )};
+      if ($nbr > ${0x10FFFF}) {${/*Error: character reference outside unicode range*/''}
+        ${ joinStr('$output', ReplacementChar, subStr('$seg','$j') )};
+      } else if ($nbr == 0) {${/*Error: null character reference*/''}
+        ${ joinStr('$output', ReplacementChar, subStr('$seg','$j') )};
+      } else if ( ($nbr > ${0xD800-1}) && ($nbr < ${0xDFFF+1}) ) {${/*Error: surrogate character reference*/''}
+        ${ joinStr('$output', ReplacementChar, subStr('$seg','$j') )};
       } else {
+        //  U+0009 TAB, U+000A LF, U+000C FF, U+000D CR, or U+0020 SPACE.
         if (${nonCharCheck}) {
           // ${joinStr('$output', "'&'", '$seg')};
-          // continue;
-        } else if (($nbr == ${0x0D}) || ($nbr < ${0x001F+1})) {
-          parseError("${ERRORS.CTRL_CHARACTER.MSG}",${ERRORS.CTRL_CHARACTER.CODE});
-        } else if (($nbr > ${0x007F-1}) && ($nbr < ${0x009F+1})) {
-          parseError("${ERRORS.CTRL_CHARACTER.MSG}",${ERRORS.CTRL_CHARACTER.CODE});
-          var k = [${C0_REPLACE.map(el => el.from).join(',')}].indexOf($nbr);
-          if (k >= 0) $nbr = [${C0_REPLACE.map(el => el.to).join(',')}][k];
+        } else if (($nbr < ${0x1F+1}) && ($nbr != ${0x09}) && ($nbr != ${0x0A} && ($nbr != ${0x0C}) {${/*Error: control character character reference*/''}
+        } else if (($nbr > ${0x7F-1}) && ($nbr < ${0x9F+1})) {${/*Error: control character character reference*/''}
+          // ${declare('$k')} = ${searchArray(`[${C0_REPLACE.map(el => el.from).join(',')}]`,'$nbr')};
+          // if ($k >= 0) $nbr = [${C0_REPLACE.map(el => el.to).join(',')}][$k];
         }
-          output += String.fromCharCode($nbr) + seg.substring(j);
+        output += String.fromCharCode($nbr) + seg.substring(j);
       }
       continue;`;
-      /*
-      $codepoint == 0x09
-			|| $codepoint == 0x0a
-			|| ( $codepoint >= 0x20 && $codepoint <= 0x7e )
-			|| ( $codepoint >= 0xa0 && $codepoint <= 0xd7ff )
-			|| ( $codepoint >= 0xe000 && $codepoint <= 0xfffd )
-			|| ( $codepoint >= 0x10000 && $codepoint <= 0x10ffff );
-      */
   return parserSource;
 }
 
@@ -319,6 +298,16 @@ private ${decoderFunctionSource}
 
   fs.writeFileSync('./build/wt-entities.php', source );
 }
+
+/*
+// Character entity aliases accepted by MediaWiki
+// See mediawiki/includes/parser/Sanitizer.php
+// 'רלמ' => 'rlm',
+// 'رلم' => 'rlm',
+entities['&רלמ;'] = Object.assign({}, entities['&rlm;']);
+entities['&رلم;'] = Object.assign({}, entities['&rlm;']);
+const entitiesAliases = ['רלמ','رلم'];
+*/
 
 buildJsDecoderSource();
 buildPhpDecoderSource();

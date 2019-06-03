@@ -1,18 +1,48 @@
-/*
-   Load W3C's entities JSON object, and reduce it to something like
-   {
-      '&Aacute;': '\\xC1',
-      '&Aacute': '\\xC1',
-      '&aacute;': '\\xE1',
-      '&aacute': '\\xE1',
-      '&Abreve;': '\\u0102',
-      '&abreve;': '\\u0103',
-        :
-    }
+/**
+ * Creates and exports three look-up dictionaries of HTML entities
+ *   legacyEntitiesSorted,
+ *   html4EntitiesSorted,
+ *   html5EntitiesSorted
+ *
+ * STEP 1:
+ *   loads W3C's official entities JSON object
+ *
+ * STEP 2:
+ *   Creates lists of named entities
+ *   Injects MediaWiki's entity aliases to the object in STEP 1
+ *   Optimizes each list by moving amp, gt, lt, and quot to top of list
+ *
+ * STEP 3:
+ *   Reduces W3C's entities JSON object to something like:
+ *     {
+ *       '&Aacute;': '\\xC1',
+ *       '&Aacute': '\\xC1',
+ *       '&aacute;': '\\xE1',
+ *       '&aacute': '\\xE1',
+ *        :
+ *     }
+ *
+ * STEP 4:
+ *   Creates dictionaries of named entities, indexed by length:
+ *     {
+ *       "2": {
+ *               "named": ["gt","lt","ac","af","ap",...],
+ *               "decoded": [">","<","\u223E","\u2061","\u2248",...]
+ *            },
+ *       "3": {
+ *               "named": ["amp","acd","acE","Acy","acy",...],
+ *               "decoded": ["&","\u223F","\u223E\u0333","\u0410","\u0430",...]
+ *            },
+ *       :
+ *     }
+ *
  */
 
-// the following is exact copy of https://www.w3.org/TR/html5/entities.json
+/*****************************************************************
+ * STEP 1: loads W3C's official entities JSON object
+ *****************************************************************/
 const entities = {
+  // An exact copy of https://www.w3.org/TR/html5/entities.json
   "&Aacute;": { "codepoints": [193], "characters": "\u00C1" },
   "&Aacute": { "codepoints": [193], "characters": "\u00C1" },
   "&aacute;": { "codepoints": [225], "characters": "\u00E1" },
@@ -2246,53 +2276,38 @@ const entities = {
   "&zwnj;": { "codepoints": [8204], "characters": "\u200C" }
 };
 
-// Character entity aliases accepted by MediaWiki
-// See mediawiki/includes/parser/Sanitizer.php
-// 'רלמ' => 'rlm',
-// 'رلم' => 'rlm',
-entities['&רלמ;'] = Object.assign({}, entities['&rlm;']);
-entities['&رلم;'] = Object.assign({}, entities['&rlm;']);
+/*****************************************************************
+ * STEP 2: Creates lists of named entities
+ *****************************************************************/
 
-function toEscapedStr(charCode) {
-  const hex = charCode.toString(16).toUpperCase();
-  if ((charCode >= 32) && (charCode <= 127)) {
-    if (charCode == 39) return "'";
-    if (charCode == 34) return '\\"';
-    if (charCode == 92) return '\\\\';
-    return String.fromCharCode(charCode);
-  }
-  if (charCode <= 0x0F)   return '\\x0' + hex;
-  if (charCode <= 0xFF)   return '\\x'  + hex;
-  if (charCode <= 0x0FFF) return '\\u0' + hex;
-  if (charCode <= 0xFFFF) return '\\u' +  hex;
-
-  // https://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
-  const H = Math.floor((charCode - 0x10000) / 0x400) + 0xD800;
-  const L = (charCode - 0x10000) % 0x400 + 0xDC00;
-  return toEscapedStr(H) + toEscapedStr(L);
-}
-
-const entitiesDict = {};
-Object.keys(entities).forEach( (k) => {
-  entitiesDict[k] =
-    entities[k].codepoints.reduce( (res, el) => { return res + toEscapedStr(el); }, '');
-});
-
-const html3EntitiesList = [
+let html3EntitiesList = [
   // The following is extracted from HTML 3.2 standard
   // https://www.w3.org/TR/2018/SPSD-html32-20180315/
-  "AElig","Aacute","Acirc","Agrave","Aring","Atilde","Auml","Ccedil",
-  "ETH","Eacute","Ecirc","Egrave","Euml","Iacute","Icirc","Igrave","Iuml",
-  "Ntilde","Oacute","Ocirc","Ograve","Oslash","Otilde","Ouml","THORN",
-  "Uacute","Ucirc","Ugrave","Uuml","Yacute","aacute","acirc","acute",
-  "aelig","agrave","aring","atilde","auml","brvbar","ccedil","cedil",
-  "cent","copy","curren","deg","divide","eacute","ecirc","egrave","eth",
-  "euml","frac12","frac14","frac34","iacute","icirc","iexcl","igrave",
-  "iquest","iuml","laquo","macr","micro","middot","nbsp","not","ntilde",
-  "oacute","ocirc","ograve","ordf","ordm","oslash","otilde","ouml","para",
-  "plusmn","pound","raquo","reg","sect","shy","sup1","sup2","sup3","szlig",
-  "thorn","times","uacute","ucirc","ugrave","uml","uuml","yacute","yen",
-  "yuml",
+  "AElig","Aacute","Acirc","Agrave","Aring","Atilde","Auml",
+  "Ccedil",
+  "ETH","Eacute","Ecirc","Egrave","Euml",
+  "Iacute","Icirc","Igrave","Iuml",
+  "Ntilde",
+  "Oacute","Ocirc","Ograve","Oslash","Otilde","Ouml",
+  "THORN",
+  "Uacute","Ucirc","Ugrave","Uuml","Yacute",
+  "aacute","acirc","acute","aelig","agrave","aring","atilde","auml",
+  "brvbar",
+  "ccedil","cedil","cent","copy","curren",
+  "deg","divide",
+  "eacute","ecirc","egrave","eth","euml",
+  "frac12","frac14","frac34",
+  "iacute","icirc","iexcl","igrave","iquest","iuml",
+  "laquo",
+  "macr","micro","middot",
+  "nbsp","not","ntilde",
+  "oacute","ocirc","ograve","ordf","ordm","oslash","otilde","ouml",
+  "para","plusmn","pound",
+  "raquo","reg",
+  "sect","shy","sup1","sup2","sup3","szlig",
+  "thorn","times",
+  "uacute","ucirc","ugrave","uml","uuml",
+  "yacute","yen","yuml",
   // Special cases
   "lt", "gt", "amp", "LT", "GT", "AMP",
   // Not part of HTML 3.2 but part of HTML 2.0 (weird)
@@ -2300,7 +2315,7 @@ const html3EntitiesList = [
   "quot", "QUOT"
 ];
 
-const html4EntitiesList = [
+let html4EntitiesList = [
   // The following is extracted from HTML 4.0 standard
   // https://www.w3.org/TR/html4/sgml/entities.html
   "Aacute","aacute","acirc","Acirc","acute","aelig","AElig",
@@ -2343,6 +2358,61 @@ const html4EntitiesList = [
   "apos"
 ];
 
+let html5EntitiesList = [];
+Object.keys(entities).forEach( (el) => {
+  if ((el.charAt(el.length - 1) == ';') &&
+      (el !== '&GT;') && (el !== '&AMP;') &&
+      (el !== '&LT;') && (el !== '&QUOT;')
+  ) {
+    html5EntitiesList.push(el.substring(1, el.length - 1));
+  }
+});
+
+// move frequently used &amp;, &gt;, &lt;, and &quot; to begining
+function optimizeEntitiesList(list) {
+  list.splice(list.indexOf('amp'),1);
+  list.splice(list.indexOf('gt'),1);
+  list.splice(list.indexOf('lt'),1);
+  list.splice(list.indexOf('quot'),1);
+  return ['amp', 'gt', 'lt', 'quot'].concat(list);
+}
+html3EntitiesList = optimizeEntitiesList(html3EntitiesList);
+html4EntitiesList = optimizeEntitiesList(html4EntitiesList);
+html5EntitiesList = optimizeEntitiesList(html5EntitiesList);
+
+/*****************************************************************
+ * STEP 3: Reduces W3C's entities JSON object
+ *****************************************************************/
+
+function toEscapedStr(charCode) {
+  const hex = charCode.toString(16).toUpperCase();
+  if ((charCode >= 32) && (charCode <= 127)) {
+    if (charCode == 39) return "'";
+    if (charCode == 34) return '\\"';
+    if (charCode == 92) return '\\\\';
+    return String.fromCharCode(charCode);
+  }
+  if (charCode <= 0x0F)   return '\\x0' + hex;
+  if (charCode <= 0xFF)   return '\\x'  + hex;
+  if (charCode <= 0x0FFF) return '\\u0' + hex;
+  if (charCode <= 0xFFFF) return '\\u' +  hex;
+
+  // https://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
+  const H = Math.floor((charCode - 0x10000) / 0x400) + 0xD800;
+  const L = (charCode - 0x10000) % 0x400 + 0xDC00;
+  return toEscapedStr(H) + toEscapedStr(L);
+}
+
+const entitiesDict = {};
+Object.keys(entities).forEach( (k) => {
+  entitiesDict[k] =
+    entities[k].codepoints.reduce( (res, el) => { return res + toEscapedStr(el); }, '');
+});
+
+/*****************************************************************
+ * STEP 4: Creates dictionaries of named entities
+ *****************************************************************/
+
 // Html3 entities sorted by length
 const legacyEntitiesSorted = {};
 html3EntitiesList.forEach( (el) => {
@@ -2371,36 +2441,17 @@ html4EntitiesList.forEach( (el) => {
   }
 });
 
-// Html5 entities (sans legacy entites) sorted by length
+// Html5 entities sorted by length
 const html5EntitiesSorted = {};
-let keys = Object.keys(entitiesDict);
-// move frequently used &amp;, &gt;, &lt;, and &quot; to begining
-const amp = entitiesDict['&amp;'];
-const gt = entitiesDict['&gt;'];
-const lt = entitiesDict['&lt;'];
-const quot = entitiesDict['&quot;'];
-keys.splice(keys.indexOf('&amp;'),1);
-keys.splice(keys.indexOf('&gt;'),1);
-keys.splice(keys.indexOf('&lt;'),1);
-keys.splice(keys.indexOf('&quot;'),1);
-keys = [amp, gt, lt, quot].concat(keys);
-
-Object.keys(entitiesDict).forEach( (el) => {
-  if ((el.charAt(el.length - 1) == ';') &&
-      (el !== '&GT;') && (el !== '&AMP;') &&
-      (el !== '&LT;') && (el !== '&QUOT;')
-  ) {
-    // must use double quote to escape unicode
-    // https://php.net/manual/en/language.types.string.php#language.types.string.syntax.double
-    const named = '"' + el.substring(1, el.length - 1) + '"';
-    const decoded = '"' + entitiesDict[el] + '"';
-    let len = el.length - 2;
-    if (html5EntitiesSorted[len]) {
-      html5EntitiesSorted[len].named.push(named);
-      html5EntitiesSorted[len].decoded.push(decoded);
-    } else {
-      html5EntitiesSorted[len] = {named: [named], decoded: [decoded] };
-    }
+html5EntitiesList.forEach( (el) => {
+  const named = '"' + el + '"';
+  const decoded = '"' + entitiesDict['&' + el + ';'] + '"';
+  let len = el.length - 2;
+  if (html5EntitiesSorted[len]) {
+    html5EntitiesSorted[len].named.push(named);
+    html5EntitiesSorted[len].decoded.push(decoded);
+  } else {
+    html5EntitiesSorted[len] = {named: [named], decoded: [decoded] };
   }
 });
 
