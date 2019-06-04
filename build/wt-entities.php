@@ -3,12 +3,12 @@
 $hexChar = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','A','B','C','D','E','F'];
 $hexDigit = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 10, 11, 12, 13, 14, 15];
 $decChar = ['0','1','2','3','4','5','6','7','8','9'];
-$N0 = ["ac","af","ap","DD","dd","ee","eg","el","ge","gE","gg","Gg","gl","gt","Gt","ic","ii","Im","in","it","le","lE","lg","ll","Ll","lt","Lt","mp","Mu","mu","ne","ni","Nu","nu","Or","or","oS","Pi","pi","pm","Pr","pr","Re","rx","Sc","sc","wp","wr","Xi","xi"];
-$D0 = ["\u223E","\u2061","\u2248","\u2145","\u2146","\u2147","\u2A9A","\u2A99","\u2265","\u2267","\u226B","\u22D9","\u2277",">","\u226B","\u2063","\u2148","\u2111","\u2208","\u2062","\u2264","\u2266","\u2276","\u226A","\u22D8","<","\u226A","\u2213","\u039C","\u03BC","\u2260","\u220B","\u039D","\u03BD","\u2A54","\u2228","\u24C8","\u03A0","\u03C0","\xB1","\u2ABB","\u227A","\u211C","\u211E","\u2ABC","\u227B","\u2118","\u2240","\u039E","\u03BE"];
-$N1 = ["acd","acE","Acy","acy","Afr","afr","amp","And","and","ang","apE","ape","ast","Bcy","bcy","Bfr","bfr","bne","bot","cap","Cap","cfr","Cfr","Chi","chi","cir","cup","Cup","Dcy","dcy","deg","Del","Dfr","dfr","die","div","Dot","dot","Ecy","ecy","Efr","efr","egs","ell","els","ENG","eng","Eta","eta","ETH","eth","Fcy","fcy","Ffr","ffr","gap","Gcy","gcy","gEl","gel","geq","ges","Gfr","gfr","ggg","gla","glE","glj","gne","gnE","Hat","hfr","Hfr","Icy","icy","iff","ifr","Ifr","int","Int","Jcy","jcy","Jfr","jfr","Kcy","kcy","Kfr","kfr","lap","lat","Lcy","lcy","lEg","leg","leq","les","Lfr","lfr","lgE","lne","lnE","loz","lrm","lsh","Lsh","Map","map","Mcy","mcy","Mfr","mfr","mho","mid","nap","Ncy","ncy","Nfr","nfr","ngE","nge","nGg","nGt","ngt","nis","niv","nlE","nle","nLl","nLt","nlt","Not","not","npr","nsc","num","Ocy","ocy","Ofr","ofr","ogt","ohm","olt","ord","orv","par","Pcy","pcy","Pfr","pfr","Phi","phi","piv","pre","prE","Psi","psi","Qfr","qfr","Rcy","rcy","reg","REG","rfr","Rfr","Rho","rho","rlm","rsh","Rsh","sce","scE","Scy","scy","Sfr","sfr","shy","sim","smt","sol","squ","sub","Sub","sum","Sum","sup","Sup","Tab","Tau","tau","Tcy","tcy","Tfr","tfr","top","Ucy","ucy","Ufr","ufr","uml","Vcy","vcy","vee","Vee","Vfr","vfr","Wfr","wfr","Xfr","xfr","Ycy","ycy","yen","Yfr","yfr","Zcy","zcy","zfr","Zfr","zwj"];
-$D1 = ["\u223F","\u223E\u0333","\u0410","\u0430","\uD835\uDD04","\uD835\uDD1E","&","\u2A53","\u2227","\u2220","\u2A70","\u224A","*","\u0411","\u0431","\uD835\uDD05","\uD835\uDD1F","=\u20E5","\u22A5","\u2229","\u22D2","\uD835\uDD20","\u212D","\u03A7","\u03C7","\u25CB","\u222A","\u22D3","\u0414","\u0434","\xB0","\u2207","\uD835\uDD07","\uD835\uDD21","\xA8","\xF7","\xA8","\u02D9","\u042D","\u044D","\uD835\uDD08","\uD835\uDD22","\u2A96","\u2113","\u2A95","\u014A","\u014B","\u0397","\u03B7","\xD0","\xF0","\u0424","\u0444","\uD835\uDD09","\uD835\uDD23","\u2A86","\u0413","\u0433","\u2A8C","\u22DB","\u2265","\u2A7E","\uD835\uDD0A","\uD835\uDD24","\u22D9","\u2AA5","\u2A92","\u2AA4","\u2A88","\u2269","^","\uD835\uDD25","\u210C","\u0418","\u0438","\u21D4","\uD835\uDD26","\u2111","\u222B","\u222C","\u0419","\u0439","\uD835\uDD0D","\uD835\uDD27","\u041A","\u043A","\uD835\uDD0E","\uD835\uDD28","\u2A85","\u2AAB","\u041B","\u043B","\u2A8B","\u22DA","\u2264","\u2A7D","\uD835\uDD0F","\uD835\uDD29","\u2A91","\u2A87","\u2268","\u25CA","\u200E","\u21B0","\u21B0","\u2905","\u21A6","\u041C","\u043C","\uD835\uDD10","\uD835\uDD2A","\u2127","\u2223","\u2249","\u041D","\u043D","\uD835\uDD11","\uD835\uDD2B","\u2267\u0338","\u2271","\u22D9\u0338","\u226B\u20D2","\u226F","\u22FC","\u220B","\u2266\u0338","\u2270","\u22D8\u0338","\u226A\u20D2","\u226E","\u2AEC","\xAC","\u2280","\u2281","#","\u041E","\u043E","\uD835\uDD12","\uD835\uDD2C","\u29C1","\u03A9","\u29C0","\u2A5D","\u2A5B","\u2225","\u041F","\u043F","\uD835\uDD13","\uD835\uDD2D","\u03A6","\u03C6","\u03D6","\u2AAF","\u2AB3","\u03A8","\u03C8","\uD835\uDD14","\uD835\uDD2E","\u0420","\u0440","\xAE","\xAE","\uD835\uDD2F","\u211C","\u03A1","\u03C1","\u200F","\u21B1","\u21B1","\u2AB0","\u2AB4","\u0421","\u0441","\uD835\uDD16","\uD835\uDD30","\xAD","\u223C","\u2AAA","/","\u25A1","\u2282","\u22D0","\u2211","\u2211","\u2283","\u22D1","\x09","\u03A4","\u03C4","\u0422","\u0442","\uD835\uDD17","\uD835\uDD31","\u22A4","\u0423","\u0443","\uD835\uDD18","\uD835\uDD32","\xA8","\u0412","\u0432","\u2228","\u22C1","\uD835\uDD19","\uD835\uDD33","\uD835\uDD1A","\uD835\uDD34","\uD835\uDD1B","\uD835\uDD35","\u042B","\u044B","\xA5","\uD835\uDD1C","\uD835\uDD36","\u0417","\u0437","\uD835\uDD37","\u2128","\u200D"];
-$N2 = ["andd","andv","ange","Aopf","aopf","apid","apos","Ascr","ascr","Auml","auml","Barv","bbrk","Beta","beta","beth","bNot","bnot","Bopf","bopf","boxh","boxH","boxv","boxV","bscr","Bscr","bsim","bsol","bull","bump","caps","Cdot","cdot","cent","CHcy","chcy","circ","cirE","cire","comp","cong","copf","Copf","copy","COPY","Cscr","cscr","csub","csup","cups","darr","Darr","dArr","dash","dHar","diam","DJcy","djcy","Dopf","dopf","Dscr","dscr","DScy","dscy","dsol","dtri","DZcy","dzcy","ecir","Edot","edot","eDot","emsp","ensp","Eopf","eopf","epar","epsi","escr","Escr","Esim","esim","Euml","euml","euro","excl","flat","fnof","Fopf","fopf","fork","fscr","Fscr","Gdot","gdot","geqq","gesl","GJcy","gjcy","gnap","gneq","Gopf","gopf","Gscr","gscr","gsim","gtcc","gvnE","half","harr","hArr","hbar","hopf","Hopf","hscr","Hscr","Idot","IEcy","iecy","imof","IOcy","iocy","Iopf","iopf","Iota","iota","iscr","Iscr","isin","Iuml","iuml","Jopf","jopf","Jscr","jscr","KHcy","khcy","KJcy","kjcy","Kopf","kopf","Kscr","kscr","lang","Lang","larr","Larr","lArr","late","lcub","ldca","ldsh","leqq","lesg","lHar","LJcy","ljcy","lnap","lneq","Lopf","lopf","lozf","lpar","lscr","Lscr","lsim","lsqb","ltcc","ltri","lvnE","macr","male","malt","mlcp","mldr","Mopf","mopf","mscr","Mscr","nang","napE","nbsp","ncap","ncup","ngeq","nges","ngtr","nGtv","nisd","NJcy","njcy","nldr","nleq","nles","nLtv","nmid","nopf","Nopf","npar","npre","nsce","Nscr","nscr","nsim","nsub","nsup","ntgl","ntlg","nvap","nvge","nvgt","nvle","nvlt","oast","ocir","odiv","odot","ogon","oint","omid","Oopf","oopf","opar","ordf","ordm","oror","Oscr","oscr","osol","Ouml","ouml","para","part","perp","phiv","plus","popf","Popf","prap","prec","prnE","prod","prop","Pscr","pscr","qint","qopf","Qopf","Qscr","qscr","quot","race","rang","Rang","rarr","Rarr","rArr","rcub","rdca","rdsh","real","rect","rHar","rhov","ring","ropf","Ropf","rpar","rscr","Rscr","rsqb","rtri","scap","scnE","sdot","sect","semi","sext","SHcy","shcy","sime","simg","siml","smid","smte","solb","Sopf","sopf","spar","Sqrt","squf","Sscr","sscr","Star","star","subE","sube","succ","sung","sup1","sup2","sup3","supE","supe","tbrk","tdot","tint","toea","Topf","topf","tosa","trie","Tscr","tscr","TScy","tscy","uarr","Uarr","uArr","uHar","Uopf","uopf","upsi","Upsi","Uscr","uscr","utri","Uuml","uuml","varr","vArr","vBar","Vbar","vert","Vert","Vopf","vopf","Vscr","vscr","Wopf","wopf","Wscr","wscr","xcap","xcup","xmap","xnis","Xopf","xopf","Xscr","xscr","xvee","YAcy","yacy","YIcy","yicy","Yopf","yopf","Yscr","yscr","YUcy","yucy","yuml","Yuml","Zdot","zdot","Zeta","zeta","ZHcy","zhcy","zopf","Zopf","Zscr","zscr","zwnj"];
-$D2 = ["\u2A5C","\u2A5A","\u29A4","\uD835\uDD38","\uD835\uDD52","\u224B","'","\uD835\uDC9C","\uD835\uDCB6","\xC4","\xE4","\u2AE7","\u23B5","\u0392","\u03B2","\u2136","\u2AED","\u2310","\uD835\uDD39","\uD835\uDD53","\u2500","\u2550","\u2502","\u2551","\uD835\uDCB7","\u212C","\u223D","\\","\u2022","\u224E","\u2229\uFE00","\u010A","\u010B","\xA2","\u0427","\u0447","\u02C6","\u29C3","\u2257","\u2201","\u2245","\uD835\uDD54","\u2102","\xA9","\xA9","\uD835\uDC9E","\uD835\uDCB8","\u2ACF","\u2AD0","\u222A\uFE00","\u2193","\u21A1","\u21D3","\u2010","\u2965","\u22C4","\u0402","\u0452","\uD835\uDD3B","\uD835\uDD55","\uD835\uDC9F","\uD835\uDCB9","\u0405","\u0455","\u29F6","\u25BF","\u040F","\u045F","\u2256","\u0116","\u0117","\u2251","\u2003","\u2002","\uD835\uDD3C","\uD835\uDD56","\u22D5","\u03B5","\u212F","\u2130","\u2A73","\u2242","\xCB","\xEB","\u20AC","!","\u266D","\u0192","\uD835\uDD3D","\uD835\uDD57","\u22D4","\uD835\uDCBB","\u2131","\u0120","\u0121","\u2267","\u22DB\uFE00","\u0403","\u0453","\u2A8A","\u2A88","\uD835\uDD3E","\uD835\uDD58","\uD835\uDCA2","\u210A","\u2273","\u2AA7","\u2269\uFE00","\xBD","\u2194","\u21D4","\u210F","\uD835\uDD59","\u210D","\uD835\uDCBD","\u210B","\u0130","\u0415","\u0435","\u22B7","\u0401","\u0451","\uD835\uDD40","\uD835\uDD5A","\u0399","\u03B9","\uD835\uDCBE","\u2110","\u2208","\xCF","\xEF","\uD835\uDD41","\uD835\uDD5B","\uD835\uDCA5","\uD835\uDCBF","\u0425","\u0445","\u040C","\u045C","\uD835\uDD42","\uD835\uDD5C","\uD835\uDCA6","\uD835\uDCC0","\u27E8","\u27EA","\u2190","\u219E","\u21D0","\u2AAD","{","\u2936","\u21B2","\u2266","\u22DA\uFE00","\u2962","\u0409","\u0459","\u2A89","\u2A87","\uD835\uDD43","\uD835\uDD5D","\u29EB","(","\uD835\uDCC1","\u2112","\u2272","[","\u2AA6","\u25C3","\u2268\uFE00","\xAF","\u2642","\u2720","\u2ADB","\u2026","\uD835\uDD44","\uD835\uDD5E","\uD835\uDCC2","\u2133","\u2220\u20D2","\u2A70\u0338","\xA0","\u2A43","\u2A42","\u2271","\u2A7E\u0338","\u226F","\u226B\u0338","\u22FA","\u040A","\u045A","\u2025","\u2270","\u2A7D\u0338","\u226A\u0338","\u2224","\uD835\uDD5F","\u2115","\u2226","\u2AAF\u0338","\u2AB0\u0338","\uD835\uDCA9","\uD835\uDCC3","\u2241","\u2284","\u2285","\u2279","\u2278","\u224D\u20D2","\u2265\u20D2",">\u20D2","\u2264\u20D2","<\u20D2","\u229B","\u229A","\u2A38","\u2299","\u02DB","\u222E","\u29B6","\uD835\uDD46","\uD835\uDD60","\u29B7","\xAA","\xBA","\u2A56","\uD835\uDCAA","\u2134","\u2298","\xD6","\xF6","\xB6","\u2202","\u22A5","\u03D5","+","\uD835\uDD61","\u2119","\u2AB7","\u227A","\u2AB5","\u220F","\u221D","\uD835\uDCAB","\uD835\uDCC5","\u2A0C","\uD835\uDD62","\u211A","\uD835\uDCAC","\uD835\uDCC6","\"","\u223D\u0331","\u27E9","\u27EB","\u2192","\u21A0","\u21D2","}","\u2937","\u21B3","\u211C","\u25AD","\u2964","\u03F1","\u02DA","\uD835\uDD63","\u211D",")","\uD835\uDCC7","\u211B","]","\u25B9","\u2AB8","\u2AB6","\u22C5","\xA7",";","\u2736","\u0428","\u0448","\u2243","\u2A9E","\u2A9D","\u2223","\u2AAC","\u29C4","\uD835\uDD4A","\uD835\uDD64","\u2225","\u221A","\u25AA","\uD835\uDCAE","\uD835\uDCC8","\u22C6","\u2606","\u2AC5","\u2286","\u227B","\u266A","\xB9","\xB2","\xB3","\u2AC6","\u2287","\u23B4","\u20DB","\u222D","\u2928","\uD835\uDD4B","\uD835\uDD65","\u2929","\u225C","\uD835\uDCAF","\uD835\uDCC9","\u0426","\u0446","\u2191","\u219F","\u21D1","\u2963","\uD835\uDD4C","\uD835\uDD66","\u03C5","\u03D2","\uD835\uDCB0","\uD835\uDCCA","\u25B5","\xDC","\xFC","\u2195","\u21D5","\u2AE8","\u2AEB","|","\u2016","\uD835\uDD4D","\uD835\uDD67","\uD835\uDCB1","\uD835\uDCCB","\uD835\uDD4E","\uD835\uDD68","\uD835\uDCB2","\uD835\uDCCC","\u22C2","\u22C3","\u27FC","\u22FB","\uD835\uDD4F","\uD835\uDD69","\uD835\uDCB3","\uD835\uDCCD","\u22C1","\u042F","\u044F","\u0407","\u0457","\uD835\uDD50","\uD835\uDD6A","\uD835\uDCB4","\uD835\uDCCE","\u042E","\u044E","\xFF","\u0178","\u017B","\u017C","\u0396","\u03B6","\u0416","\u0436","\uD835\uDD6B","\u2124","\uD835\uDCB5","\uD835\uDCCF","\u200C"];
+$N0 = ["gt","lt","ac","af","ap","DD","dd","ee","eg","el","ge","gE","gg","Gg","gl","Gt","ic","ii","Im","in","it","le","lE","lg","ll","Ll","Lt","mp","Mu","mu","ne","ni","Nu","nu","Or","or","oS","Pi","pi","pm","Pr","pr","Re","rx","Sc","sc","wp","wr","Xi","xi"];
+$D0 = [">","<","\u223E","\u2061","\u2248","\u2145","\u2146","\u2147","\u2A9A","\u2A99","\u2265","\u2267","\u226B","\u22D9","\u2277","\u226B","\u2063","\u2148","\u2111","\u2208","\u2062","\u2264","\u2266","\u2276","\u226A","\u22D8","\u226A","\u2213","\u039C","\u03BC","\u2260","\u220B","\u039D","\u03BD","\u2A54","\u2228","\u24C8","\u03A0","\u03C0","\xB1","\u2ABB","\u227A","\u211C","\u211E","\u2ABC","\u227B","\u2118","\u2240","\u039E","\u03BE"];
+$N1 = ["amp","acd","acE","Acy","acy","Afr","afr","And","and","ang","apE","ape","ast","Bcy","bcy","Bfr","bfr","bne","bot","cap","Cap","cfr","Cfr","Chi","chi","cir","cup","Cup","Dcy","dcy","deg","Del","Dfr","dfr","die","div","Dot","dot","Ecy","ecy","Efr","efr","egs","ell","els","ENG","eng","Eta","eta","ETH","eth","Fcy","fcy","Ffr","ffr","gap","Gcy","gcy","gEl","gel","geq","ges","Gfr","gfr","ggg","gla","glE","glj","gne","gnE","Hat","hfr","Hfr","Icy","icy","iff","ifr","Ifr","int","Int","Jcy","jcy","Jfr","jfr","Kcy","kcy","Kfr","kfr","lap","lat","Lcy","lcy","lEg","leg","leq","les","Lfr","lfr","lgE","lne","lnE","loz","lrm","lsh","Lsh","Map","map","Mcy","mcy","Mfr","mfr","mho","mid","nap","Ncy","ncy","Nfr","nfr","ngE","nge","nGg","nGt","ngt","nis","niv","nlE","nle","nLl","nLt","nlt","Not","not","npr","nsc","num","Ocy","ocy","Ofr","ofr","ogt","ohm","olt","ord","orv","par","Pcy","pcy","Pfr","pfr","Phi","phi","piv","pre","prE","Psi","psi","Qfr","qfr","Rcy","rcy","reg","REG","rfr","Rfr","Rho","rho","rlm","rsh","Rsh","sce","scE","Scy","scy","Sfr","sfr","shy","sim","smt","sol","squ","sub","Sub","sum","Sum","sup","Sup","Tab","Tau","tau","Tcy","tcy","Tfr","tfr","top","Ucy","ucy","Ufr","ufr","uml","Vcy","vcy","vee","Vee","Vfr","vfr","Wfr","wfr","Xfr","xfr","Ycy","ycy","yen","Yfr","yfr","Zcy","zcy","zfr","Zfr","zwj"];
+$D1 = ["&","\u223F","\u223E\u0333","\u0410","\u0430","\uD835\uDD04","\uD835\uDD1E","\u2A53","\u2227","\u2220","\u2A70","\u224A","*","\u0411","\u0431","\uD835\uDD05","\uD835\uDD1F","=\u20E5","\u22A5","\u2229","\u22D2","\uD835\uDD20","\u212D","\u03A7","\u03C7","\u25CB","\u222A","\u22D3","\u0414","\u0434","\xB0","\u2207","\uD835\uDD07","\uD835\uDD21","\xA8","\xF7","\xA8","\u02D9","\u042D","\u044D","\uD835\uDD08","\uD835\uDD22","\u2A96","\u2113","\u2A95","\u014A","\u014B","\u0397","\u03B7","\xD0","\xF0","\u0424","\u0444","\uD835\uDD09","\uD835\uDD23","\u2A86","\u0413","\u0433","\u2A8C","\u22DB","\u2265","\u2A7E","\uD835\uDD0A","\uD835\uDD24","\u22D9","\u2AA5","\u2A92","\u2AA4","\u2A88","\u2269","^","\uD835\uDD25","\u210C","\u0418","\u0438","\u21D4","\uD835\uDD26","\u2111","\u222B","\u222C","\u0419","\u0439","\uD835\uDD0D","\uD835\uDD27","\u041A","\u043A","\uD835\uDD0E","\uD835\uDD28","\u2A85","\u2AAB","\u041B","\u043B","\u2A8B","\u22DA","\u2264","\u2A7D","\uD835\uDD0F","\uD835\uDD29","\u2A91","\u2A87","\u2268","\u25CA","\u200E","\u21B0","\u21B0","\u2905","\u21A6","\u041C","\u043C","\uD835\uDD10","\uD835\uDD2A","\u2127","\u2223","\u2249","\u041D","\u043D","\uD835\uDD11","\uD835\uDD2B","\u2267\u0338","\u2271","\u22D9\u0338","\u226B\u20D2","\u226F","\u22FC","\u220B","\u2266\u0338","\u2270","\u22D8\u0338","\u226A\u20D2","\u226E","\u2AEC","\xAC","\u2280","\u2281","#","\u041E","\u043E","\uD835\uDD12","\uD835\uDD2C","\u29C1","\u03A9","\u29C0","\u2A5D","\u2A5B","\u2225","\u041F","\u043F","\uD835\uDD13","\uD835\uDD2D","\u03A6","\u03C6","\u03D6","\u2AAF","\u2AB3","\u03A8","\u03C8","\uD835\uDD14","\uD835\uDD2E","\u0420","\u0440","\xAE","\xAE","\uD835\uDD2F","\u211C","\u03A1","\u03C1","\u200F","\u21B1","\u21B1","\u2AB0","\u2AB4","\u0421","\u0441","\uD835\uDD16","\uD835\uDD30","\xAD","\u223C","\u2AAA","/","\u25A1","\u2282","\u22D0","\u2211","\u2211","\u2283","\u22D1","\x09","\u03A4","\u03C4","\u0422","\u0442","\uD835\uDD17","\uD835\uDD31","\u22A4","\u0423","\u0443","\uD835\uDD18","\uD835\uDD32","\xA8","\u0412","\u0432","\u2228","\u22C1","\uD835\uDD19","\uD835\uDD33","\uD835\uDD1A","\uD835\uDD34","\uD835\uDD1B","\uD835\uDD35","\u042B","\u044B","\xA5","\uD835\uDD1C","\uD835\uDD36","\u0417","\u0437","\uD835\uDD37","\u2128","\u200D"];
+$N2 = ["quot","andd","andv","ange","Aopf","aopf","apid","apos","Ascr","ascr","Auml","auml","Barv","bbrk","Beta","beta","beth","bNot","bnot","Bopf","bopf","boxh","boxH","boxv","boxV","bscr","Bscr","bsim","bsol","bull","bump","caps","Cdot","cdot","cent","CHcy","chcy","circ","cirE","cire","comp","cong","copf","Copf","copy","COPY","Cscr","cscr","csub","csup","cups","darr","Darr","dArr","dash","dHar","diam","DJcy","djcy","Dopf","dopf","Dscr","dscr","DScy","dscy","dsol","dtri","DZcy","dzcy","ecir","Edot","edot","eDot","emsp","ensp","Eopf","eopf","epar","epsi","escr","Escr","Esim","esim","Euml","euml","euro","excl","flat","fnof","Fopf","fopf","fork","fscr","Fscr","Gdot","gdot","geqq","gesl","GJcy","gjcy","gnap","gneq","Gopf","gopf","Gscr","gscr","gsim","gtcc","gvnE","half","harr","hArr","hbar","hopf","Hopf","hscr","Hscr","Idot","IEcy","iecy","imof","IOcy","iocy","Iopf","iopf","Iota","iota","iscr","Iscr","isin","Iuml","iuml","Jopf","jopf","Jscr","jscr","KHcy","khcy","KJcy","kjcy","Kopf","kopf","Kscr","kscr","lang","Lang","larr","Larr","lArr","late","lcub","ldca","ldsh","leqq","lesg","lHar","LJcy","ljcy","lnap","lneq","Lopf","lopf","lozf","lpar","lscr","Lscr","lsim","lsqb","ltcc","ltri","lvnE","macr","male","malt","mlcp","mldr","Mopf","mopf","mscr","Mscr","nang","napE","nbsp","ncap","ncup","ngeq","nges","ngtr","nGtv","nisd","NJcy","njcy","nldr","nleq","nles","nLtv","nmid","nopf","Nopf","npar","npre","nsce","Nscr","nscr","nsim","nsub","nsup","ntgl","ntlg","nvap","nvge","nvgt","nvle","nvlt","oast","ocir","odiv","odot","ogon","oint","omid","Oopf","oopf","opar","ordf","ordm","oror","Oscr","oscr","osol","Ouml","ouml","para","part","perp","phiv","plus","popf","Popf","prap","prec","prnE","prod","prop","Pscr","pscr","qint","qopf","Qopf","Qscr","qscr","race","rang","Rang","rarr","Rarr","rArr","rcub","rdca","rdsh","real","rect","rHar","rhov","ring","ropf","Ropf","rpar","rscr","Rscr","rsqb","rtri","scap","scnE","sdot","sect","semi","sext","SHcy","shcy","sime","simg","siml","smid","smte","solb","Sopf","sopf","spar","Sqrt","squf","Sscr","sscr","Star","star","subE","sube","succ","sung","sup1","sup2","sup3","supE","supe","tbrk","tdot","tint","toea","Topf","topf","tosa","trie","Tscr","tscr","TScy","tscy","uarr","Uarr","uArr","uHar","Uopf","uopf","upsi","Upsi","Uscr","uscr","utri","Uuml","uuml","varr","vArr","vBar","Vbar","vert","Vert","Vopf","vopf","Vscr","vscr","Wopf","wopf","Wscr","wscr","xcap","xcup","xmap","xnis","Xopf","xopf","Xscr","xscr","xvee","YAcy","yacy","YIcy","yicy","Yopf","yopf","Yscr","yscr","YUcy","yucy","yuml","Yuml","Zdot","zdot","Zeta","zeta","ZHcy","zhcy","zopf","Zopf","Zscr","zscr","zwnj"];
+$D2 = ["\"","\u2A5C","\u2A5A","\u29A4","\uD835\uDD38","\uD835\uDD52","\u224B","'","\uD835\uDC9C","\uD835\uDCB6","\xC4","\xE4","\u2AE7","\u23B5","\u0392","\u03B2","\u2136","\u2AED","\u2310","\uD835\uDD39","\uD835\uDD53","\u2500","\u2550","\u2502","\u2551","\uD835\uDCB7","\u212C","\u223D","\\","\u2022","\u224E","\u2229\uFE00","\u010A","\u010B","\xA2","\u0427","\u0447","\u02C6","\u29C3","\u2257","\u2201","\u2245","\uD835\uDD54","\u2102","\xA9","\xA9","\uD835\uDC9E","\uD835\uDCB8","\u2ACF","\u2AD0","\u222A\uFE00","\u2193","\u21A1","\u21D3","\u2010","\u2965","\u22C4","\u0402","\u0452","\uD835\uDD3B","\uD835\uDD55","\uD835\uDC9F","\uD835\uDCB9","\u0405","\u0455","\u29F6","\u25BF","\u040F","\u045F","\u2256","\u0116","\u0117","\u2251","\u2003","\u2002","\uD835\uDD3C","\uD835\uDD56","\u22D5","\u03B5","\u212F","\u2130","\u2A73","\u2242","\xCB","\xEB","\u20AC","!","\u266D","\u0192","\uD835\uDD3D","\uD835\uDD57","\u22D4","\uD835\uDCBB","\u2131","\u0120","\u0121","\u2267","\u22DB\uFE00","\u0403","\u0453","\u2A8A","\u2A88","\uD835\uDD3E","\uD835\uDD58","\uD835\uDCA2","\u210A","\u2273","\u2AA7","\u2269\uFE00","\xBD","\u2194","\u21D4","\u210F","\uD835\uDD59","\u210D","\uD835\uDCBD","\u210B","\u0130","\u0415","\u0435","\u22B7","\u0401","\u0451","\uD835\uDD40","\uD835\uDD5A","\u0399","\u03B9","\uD835\uDCBE","\u2110","\u2208","\xCF","\xEF","\uD835\uDD41","\uD835\uDD5B","\uD835\uDCA5","\uD835\uDCBF","\u0425","\u0445","\u040C","\u045C","\uD835\uDD42","\uD835\uDD5C","\uD835\uDCA6","\uD835\uDCC0","\u27E8","\u27EA","\u2190","\u219E","\u21D0","\u2AAD","{","\u2936","\u21B2","\u2266","\u22DA\uFE00","\u2962","\u0409","\u0459","\u2A89","\u2A87","\uD835\uDD43","\uD835\uDD5D","\u29EB","(","\uD835\uDCC1","\u2112","\u2272","[","\u2AA6","\u25C3","\u2268\uFE00","\xAF","\u2642","\u2720","\u2ADB","\u2026","\uD835\uDD44","\uD835\uDD5E","\uD835\uDCC2","\u2133","\u2220\u20D2","\u2A70\u0338","\xA0","\u2A43","\u2A42","\u2271","\u2A7E\u0338","\u226F","\u226B\u0338","\u22FA","\u040A","\u045A","\u2025","\u2270","\u2A7D\u0338","\u226A\u0338","\u2224","\uD835\uDD5F","\u2115","\u2226","\u2AAF\u0338","\u2AB0\u0338","\uD835\uDCA9","\uD835\uDCC3","\u2241","\u2284","\u2285","\u2279","\u2278","\u224D\u20D2","\u2265\u20D2",">\u20D2","\u2264\u20D2","<\u20D2","\u229B","\u229A","\u2A38","\u2299","\u02DB","\u222E","\u29B6","\uD835\uDD46","\uD835\uDD60","\u29B7","\xAA","\xBA","\u2A56","\uD835\uDCAA","\u2134","\u2298","\xD6","\xF6","\xB6","\u2202","\u22A5","\u03D5","+","\uD835\uDD61","\u2119","\u2AB7","\u227A","\u2AB5","\u220F","\u221D","\uD835\uDCAB","\uD835\uDCC5","\u2A0C","\uD835\uDD62","\u211A","\uD835\uDCAC","\uD835\uDCC6","\u223D\u0331","\u27E9","\u27EB","\u2192","\u21A0","\u21D2","}","\u2937","\u21B3","\u211C","\u25AD","\u2964","\u03F1","\u02DA","\uD835\uDD63","\u211D",")","\uD835\uDCC7","\u211B","]","\u25B9","\u2AB8","\u2AB6","\u22C5","\xA7",";","\u2736","\u0428","\u0448","\u2243","\u2A9E","\u2A9D","\u2223","\u2AAC","\u29C4","\uD835\uDD4A","\uD835\uDD64","\u2225","\u221A","\u25AA","\uD835\uDCAE","\uD835\uDCC8","\u22C6","\u2606","\u2AC5","\u2286","\u227B","\u266A","\xB9","\xB2","\xB3","\u2AC6","\u2287","\u23B4","\u20DB","\u222D","\u2928","\uD835\uDD4B","\uD835\uDD65","\u2929","\u225C","\uD835\uDCAF","\uD835\uDCC9","\u0426","\u0446","\u2191","\u219F","\u21D1","\u2963","\uD835\uDD4C","\uD835\uDD66","\u03C5","\u03D2","\uD835\uDCB0","\uD835\uDCCA","\u25B5","\xDC","\xFC","\u2195","\u21D5","\u2AE8","\u2AEB","|","\u2016","\uD835\uDD4D","\uD835\uDD67","\uD835\uDCB1","\uD835\uDCCB","\uD835\uDD4E","\uD835\uDD68","\uD835\uDCB2","\uD835\uDCCC","\u22C2","\u22C3","\u27FC","\u22FB","\uD835\uDD4F","\uD835\uDD69","\uD835\uDCB3","\uD835\uDCCD","\u22C1","\u042F","\u044F","\u0407","\u0457","\uD835\uDD50","\uD835\uDD6A","\uD835\uDCB4","\uD835\uDCCE","\u042E","\u044E","\xFF","\u0178","\u017B","\u017C","\u0396","\u03B6","\u0416","\u0436","\uD835\uDD6B","\u2124","\uD835\uDCB5","\uD835\uDCCF","\u200C"];
 $N3 = ["Acirc","acirc","acute","AElig","aelig","aleph","Alpha","alpha","Amacr","amacr","amalg","angle","angrt","angst","Aogon","aogon","Aring","aring","asymp","awint","bcong","bdquo","bepsi","blank","blk12","blk14","blk34","block","boxdl","boxdL","boxDl","boxDL","boxdr","boxdR","boxDr","boxDR","boxhd","boxHd","boxhD","boxHD","boxhu","boxHu","boxhU","boxHU","boxul","boxuL","boxUl","boxUL","boxur","boxuR","boxUr","boxUR","boxvh","boxvH","boxVh","boxVH","boxvl","boxvL","boxVl","boxVL","boxvr","boxvR","boxVr","boxVR","breve","Breve","bsemi","bsime","bsolb","bumpE","bumpe","caret","caron","ccaps","Ccirc","ccirc","ccups","cedil","check","clubs","colon","Colon","comma","crarr","cross","Cross","csube","csupe","ctdot","cuepr","cuesc","cupor","cuvee","cuwed","cwint","Dashv","dashv","dblac","ddarr","Delta","delta","dharl","dharr","diams","disin","doteq","dtdot","dtrif","duarr","duhar","Ecirc","ecirc","eDDot","efDot","Emacr","emacr","empty","Eogon","eogon","eplus","epsiv","eqsim","Equal","equiv","erarr","erDot","esdot","exist","fflig","filig","fjlig","fllig","fltns","forkv","frasl","frown","Gamma","gamma","Gcirc","gcirc","gescc","gimel","gneqq","gnsim","grave","gsime","gsiml","gtcir","gtdot","Hacek","harrw","Hcirc","hcirc","hoarr","Icirc","icirc","iexcl","iiint","iiota","IJlig","ijlig","Imacr","imacr","image","imath","imped","infin","Iogon","iogon","iprod","isinE","isins","isinv","Iukcy","iukcy","Jcirc","jcirc","jmath","Jukcy","jukcy","Kappa","kappa","lAarr","langd","laquo","larrb","lates","lbarr","lBarr","lbbrk","lbrke","lceil","ldquo","lescc","lhard","lharu","lhblk","llarr","lltri","lneqq","lnsim","loang","loarr","lobrk","lopar","lrarr","lrhar","lrtri","lsime","lsimg","lsquo","ltcir","ltdot","ltrie","ltrif","mdash","mDDot","micro","minus","mumap","nabla","napid","napos","natur","nbump","ncong","ndash","nearr","neArr","nedot","nesim","ngeqq","ngsim","nharr","nhArr","nhpar","nlarr","nlArr","nleqq","nless","nlsim","nltri","notin","notni","npart","nprec","nrarr","nrArr","nrtri","nsime","nsmid","nspar","nsubE","nsube","nsucc","nsupE","nsupe","numsp","nvsim","nwarr","nwArr","Ocirc","ocirc","odash","OElig","oelig","ofcir","ohbar","olarr","olcir","oline","Omacr","omacr","Omega","omega","operp","oplus","orarr","order","ovbar","parsl","phone","plusb","pluse","pound","prcue","prime","Prime","prnap","prsim","quest","rAarr","radic","rangd","range","raquo","rarrb","rarrc","rarrw","ratio","rbarr","rBarr","RBarr","rbbrk","rbrke","rceil","rdquo","reals","rhard","rharu","rlarr","rlhar","rnmid","roang","roarr","robrk","ropar","rrarr","rsquo","rtrie","rtrif","sbquo","sccue","Scirc","scirc","scnap","scsim","sdotb","sdote","searr","seArr","setmn","sharp","Sigma","sigma","simeq","simgE","simlE","simne","slarr","smile","smtes","sqcap","sqcup","sqsub","sqsup","srarr","starf","strns","subnE","subne","supnE","supne","swarr","swArr","szlig","Theta","theta","thkap","THORN","thorn","tilde","Tilde","times","trade","TRADE","trisb","TSHcy","tshcy","twixt","Ubrcy","ubrcy","Ucirc","ucirc","udarr","udhar","uharl","uharr","uhblk","ultri","Umacr","umacr","Union","Uogon","uogon","uplus","upsih","UpTee","Uring","uring","urtri","utdot","utrif","uuarr","varpi","vBarv","vdash","vDash","Vdash","VDash","veeeq","vltri","vnsub","vnsup","vprop","vrtri","Wcirc","wcirc","wedge","Wedge","xcirc","xdtri","xharr","xhArr","xlarr","xlArr","xodot","xrarr","xrArr","xutri","Ycirc","ycirc"];
 $D3 = ["\xC2","\xE2","\xB4","\xC6","\xE6","\u2135","\u0391","\u03B1","\u0100","\u0101","\u2A3F","\u2220","\u221F","\xC5","\u0104","\u0105","\xC5","\xE5","\u2248","\u2A11","\u224C","\u201E","\u03F6","\u2423","\u2592","\u2591","\u2593","\u2588","\u2510","\u2555","\u2556","\u2557","\u250C","\u2552","\u2553","\u2554","\u252C","\u2564","\u2565","\u2566","\u2534","\u2567","\u2568","\u2569","\u2518","\u255B","\u255C","\u255D","\u2514","\u2558","\u2559","\u255A","\u253C","\u256A","\u256B","\u256C","\u2524","\u2561","\u2562","\u2563","\u251C","\u255E","\u255F","\u2560","\u02D8","\u02D8","\u204F","\u22CD","\u29C5","\u2AAE","\u224F","\u2041","\u02C7","\u2A4D","\u0108","\u0109","\u2A4C","\xB8","\u2713","\u2663",":","\u2237",",","\u21B5","\u2717","\u2A2F","\u2AD1","\u2AD2","\u22EF","\u22DE","\u22DF","\u2A45","\u22CE","\u22CF","\u2231","\u2AE4","\u22A3","\u02DD","\u21CA","\u0394","\u03B4","\u21C3","\u21C2","\u2666","\u22F2","\u2250","\u22F1","\u25BE","\u21F5","\u296F","\xCA","\xEA","\u2A77","\u2252","\u0112","\u0113","\u2205","\u0118","\u0119","\u2A71","\u03F5","\u2242","\u2A75","\u2261","\u2971","\u2253","\u2250","\u2203","\uFB00","\uFB01","fj","\uFB02","\u25B1","\u2AD9","\u2044","\u2322","\u0393","\u03B3","\u011C","\u011D","\u2AA9","\u2137","\u2269","\u22E7","`","\u2A8E","\u2A90","\u2A7A","\u22D7","\u02C7","\u21AD","\u0124","\u0125","\u21FF","\xCE","\xEE","\xA1","\u222D","\u2129","\u0132","\u0133","\u012A","\u012B","\u2111","\u0131","\u01B5","\u221E","\u012E","\u012F","\u2A3C","\u22F9","\u22F4","\u2208","\u0406","\u0456","\u0134","\u0135","\u0237","\u0404","\u0454","\u039A","\u03BA","\u21DA","\u2991","\xAB","\u21E4","\u2AAD\uFE00","\u290C","\u290E","\u2772","\u298B","\u2308","\u201C","\u2AA8","\u21BD","\u21BC","\u2584","\u21C7","\u25FA","\u2268","\u22E6","\u27EC","\u21FD","\u27E6","\u2985","\u21C6","\u21CB","\u22BF","\u2A8D","\u2A8F","\u2018","\u2A79","\u22D6","\u22B4","\u25C2","\u2014","\u223A","\xB5","\u2212","\u22B8","\u2207","\u224B\u0338","\u0149","\u266E","\u224E\u0338","\u2247","\u2013","\u2197","\u21D7","\u2250\u0338","\u2242\u0338","\u2267\u0338","\u2275","\u21AE","\u21CE","\u2AF2","\u219A","\u21CD","\u2266\u0338","\u226E","\u2274","\u22EA","\u2209","\u220C","\u2202\u0338","\u2280","\u219B","\u21CF","\u22EB","\u2244","\u2224","\u2226","\u2AC5\u0338","\u2288","\u2281","\u2AC6\u0338","\u2289","\u2007","\u223C\u20D2","\u2196","\u21D6","\xD4","\xF4","\u229D","\u0152","\u0153","\u29BF","\u29B5","\u21BA","\u29BE","\u203E","\u014C","\u014D","\u03A9","\u03C9","\u29B9","\u2295","\u21BB","\u2134","\u233D","\u2AFD","\u260E","\u229E","\u2A72","\xA3","\u227C","\u2032","\u2033","\u2AB9","\u227E","?","\u21DB","\u221A","\u2992","\u29A5","\xBB","\u21E5","\u2933","\u219D","\u2236","\u290D","\u290F","\u2910","\u2773","\u298C","\u2309","\u201D","\u211D","\u21C1","\u21C0","\u21C4","\u21CC","\u2AEE","\u27ED","\u21FE","\u27E7","\u2986","\u21C9","\u2019","\u22B5","\u25B8","\u201A","\u227D","\u015C","\u015D","\u2ABA","\u227F","\u22A1","\u2A66","\u2198","\u21D8","\u2216","\u266F","\u03A3","\u03C3","\u2243","\u2AA0","\u2A9F","\u2246","\u2190","\u2323","\u2AAC\uFE00","\u2293","\u2294","\u228F","\u2290","\u2192","\u2605","\xAF","\u2ACB","\u228A","\u2ACC","\u228B","\u2199","\u21D9","\xDF","\u0398","\u03B8","\u2248","\xDE","\xFE","\u02DC","\u223C","\xD7","\u2122","\u2122","\u29CD","\u040B","\u045B","\u226C","\u040E","\u045E","\xDB","\xFB","\u21C5","\u296E","\u21BF","\u21BE","\u2580","\u25F8","\u016A","\u016B","\u22C3","\u0172","\u0173","\u228E","\u03D2","\u22A5","\u016E","\u016F","\u25F9","\u22F0","\u25B4","\u21C8","\u03D6","\u2AE9","\u22A2","\u22A8","\u22A9","\u22AB","\u225A","\u22B2","\u2282\u20D2","\u2283\u20D2","\u221D","\u22B3","\u0174","\u0175","\u2227","\u22C0","\u25EF","\u25BD","\u27F7","\u27FA","\u27F5","\u27F8","\u2A00","\u27F6","\u27F9","\u25B3","\u0176","\u0177"];
 $N4 = ["Aacute","aacute","Abreve","abreve","Agrave","agrave","andand","angmsd","angsph","apacir","approx","Assign","Atilde","atilde","barvee","barwed","Barwed","becaus","bernou","bigcap","bigcup","bigvee","bkarow","bottom","bowtie","boxbox","bprime","brvbar","bullet","Bumpeq","bumpeq","Cacute","cacute","capand","capcap","capcup","capdot","Ccaron","ccaron","Ccedil","ccedil","circeq","cirmid","Colone","colone","commat","compfn","conint","Conint","coprod","copysr","cularr","cupcap","CupCap","cupcup","cupdot","curarr","curren","cylcty","dagger","Dagger","daleth","Dcaron","dcaron","dfisht","divide","divonx","dlcorn","dlcrop","dollar","DotDot","drcorn","drcrop","Dstrok","dstrok","Eacute","eacute","easter","Ecaron","ecaron","ecolon","Egrave","egrave","egsdot","elsdot","emptyv","emsp13","emsp14","eparsl","eqcirc","equals","equest","Exists","female","ffilig","ffllig","forall","ForAll","frac12","frac13","frac14","frac15","frac16","frac18","frac23","frac25","frac34","frac35","frac38","frac45","frac56","frac58","frac78","gacute","Gammad","gammad","Gbreve","gbreve","Gcedil","gesdot","gesles","gtlPar","gtrarr","gtrdot","gtrsim","hairsp","hamilt","HARDcy","hardcy","hearts","hellip","hercon","homtht","horbar","hslash","Hstrok","hstrok","hybull","hyphen","Iacute","iacute","Igrave","igrave","iiiint","iinfin","incare","inodot","intcal","iquest","isinsv","Itilde","itilde","Jsercy","jsercy","kappav","Kcedil","kcedil","kgreen","Lacute","lacute","lagran","Lambda","lambda","langle","larrfs","larrhk","larrlp","larrpl","larrtl","latail","lAtail","lbrace","lbrack","Lcaron","lcaron","Lcedil","lcedil","ldquor","lesdot","lesges","lfisht","lfloor","lharul","llhard","Lmidot","lmidot","lmoust","loplus","lowast","lowbar","lparlt","lrhard","lsaquo","lsquor","Lstrok","lstrok","lthree","ltimes","ltlarr","ltrPar","mapsto","marker","mcomma","midast","midcir","middot","minusb","minusd","mnplus","models","mstpos","Nacute","nacute","nbumpe","Ncaron","ncaron","Ncedil","ncedil","nearhk","nequiv","nesear","nexist","nltrie","notinE","nparsl","nprcue","nrarrc","nrarrw","nrtrie","nsccue","nsimeq","Ntilde","ntilde","numero","nvdash","nvDash","nVdash","nVDash","nvHarr","nvlArr","nvrArr","nwarhk","nwnear","Oacute","oacute","Odblac","odblac","odsold","Ograve","ograve","ominus","origof","Oslash","oslash","Otilde","otilde","Otimes","otimes","parsim","percnt","period","permil","phmmat","planck","plankv","plusdo","plusdu","plusmn","preceq","primes","prnsim","propto","prurel","puncsp","qprime","Racute","racute","rangle","rarrap","rarrfs","rarrhk","rarrlp","rarrpl","Rarrtl","rarrtl","ratail","rAtail","rbrace","rbrack","Rcaron","rcaron","Rcedil","rcedil","rdquor","rfisht","rfloor","rharul","rmoust","roplus","rpargt","rsaquo","rsquor","rthree","rtimes","Sacute","sacute","Scaron","scaron","Scedil","scedil","scnsim","searhk","seswar","sfrown","SHCHcy","shchcy","sigmaf","sigmav","simdot","smashp","SOFTcy","softcy","solbar","spades","sqcaps","sqcups","sqsube","sqsupe","square","Square","squarf","ssetmn","ssmile","sstarf","subdot","subset","Subset","subsim","subsub","subsup","succeq","supdot","supset","Supset","supsim","supsub","supsup","swarhk","swnwar","target","Tcaron","tcaron","Tcedil","tcedil","telrec","there4","thetav","thinsp","thksim","timesb","timesd","topbot","topcir","tprime","tridot","Tstrok","tstrok","Uacute","uacute","Ubreve","ubreve","Udblac","udblac","ufisht","Ugrave","ugrave","ulcorn","ulcrop","urcorn","urcrop","Utilde","utilde","vangrt","varphi","varrho","Vdashl","veebar","vellip","verbar","Verbar","vsubnE","vsubne","vsupnE","vsupne","Vvdash","wedbar","wedgeq","weierp","wreath","xoplus","xotime","xsqcup","xuplus","xwedge","Yacute","yacute","Zacute","zacute","Zcaron","zcaron","zeetrf"];
@@ -55,11 +55,12 @@ private function decodeWTEntities($input) {
   for (; $i < count($segments); $i++) {
     $seg = $segments[$i];
     if ($seg[0] == '#') {
-      $j = 1;
-      $char = $seg[1];
       $nbr = 0;
       $isEmpty = false;
-      if (($char == 'x') || ($char == 'X')) {
+      $char = $seg[1];
+          $chr = $seg[1];
+      $j = 1;
+      if (($chr == 'x') || ($chr == 'X')) {
         do {
           $k = array_search($seg[++$j], $hexChar);
           if ($k == false) break;
@@ -67,196 +68,190 @@ private function decodeWTEntities($input) {
         } while (1);
         $isEmpty = $j <= 2;
       } else {
-        while (1) {
-          if ((cc < 48) || (cc > 57)) break;
-          num = num * 10 + cc - 48;
-          cc = $seg.charCodeAt(++j);
-        }
+        do {
+          $k = array_search($seg[$j], $decChar);
+          if ($k == false) break;
+          $nbr = $nbr * 10 + $k;
+          $j++;
+        } while (1)
         $isEmpty = $j < 1;
       }
-      if ($isEmpty) {
-        $output .= '&' . $seg; // Error: missing digit in numeric character reference
+      if ( ($isEmpty) ||
+          ($seq[$j] !== ';')
+      ) {
+        $output .= '&' . $seg;
         continue;
       }
-      if (cc == 59) {
-        j++;
-      } else if (strict) {        output += '&' + seg; // Error: missing semicolon after character reference
-        continue;
-      }
-      if (num > 1114111) {
-          parseError("character reference outside unicode range",1);
-          output += '\uFFFD' + seg.substring(j);
-      } else if (num == 0) {
-          parseError("null character reference",0);
-          output += '\uFFFD' + seg.substring(j);
-      } else if ( (num > 55295) && (num < 57344) ) {
-          parseError("surrogate character reference",2);
-          output += '\uFFFD' + seg.substring(j);
+      $j++;
+      if ($nbr > 1114111) {
+        $output .= \uFFFD . substr($seg,$j)||'';
+      } else if ($nbr == 0) {
+        $output .= \uFFFD . substr($seg,$j)||'';
+      } else if ( ($nbr > 55295) && ($nbr < 57344) ) {
+        $output .= \uFFFD . substr($seg,$j)||'';
       } else {
-          if (((num > 64975) && (num < 65008)) || ([65535,131070,131071,196606,196607,262142,262143,327678,327679,393214,393215,458750,458751,524286,524287,589822,589823,655358,655359,720894,720895,786430,786431,851966,851967,917502,917503,983038,983039,1048574,1048575,1114110,1114111].indexOf(num) >= 0)) {
-              parseError("non-character character reference",3);
-          } else if ((num == 13) || (num < 32)) {
-              parseError("control character character reference",4);
-          } else if ((num > 126) && (num < 160)) {
-              parseError("control character character reference",4);
-              var k = [128,130,131,132,133,134,135,136,137,138,139,140,142,145,146,147,148,149,150,151,152,153,154,155,156,158,159].indexOf(num);
-              if (k >= 0) num = [8364,8218,402,8222,8230,8224,8225,710,8240,352,8249,338,381,8216,8217,8220,8221,8226,8211,8212,732,8482,353,8250,339,382,376][k];
-          }
-          output += String.fromCharCode(num) + seg.substring(j);
+        //  U+0009 TAB, U+000A LF, U+000C FF, U+000D CR, or U+0020 SPACE.
+        if ((($nbr > 64975) && ($nbr < 65008)) || ($nbr & 65535 > 65533)) {
+          // $output .= '&' . $seg;
+          // continue;
+        } else if (($nbr == 13) || ($nbr < 32)) {
+        } else if (($nbr > 126) && ($nbr < 160)) {
+          // $k = array_search($nbr,[128,130,131,132,133,134,135,136,137,138,139,140,142,145,146,147,148,149,150,151,152,153,154,155,156,158,159]);
+          // if ($k >= 0) $nbr = [8364,8218,402,8222,8230,8224,8225,710,8240,352,8249,338,381,8216,8217,8220,8221,8226,8211,8212,732,8482,353,8250,339,382,376][$k];
+        }
+        output += String.fromCharCode($nbr) + seg.substring(j);
       }
       continue;
     } else {
       $candidateLen = strpos($seg,';');
       if ($candidateLen == false) {
-        // Error: missing semicolon after character reference
         $output .= '&' . $seg;
         continue;
       }
       $candidateStr = substr($seg,0,$candidateLen)||'';
-      if ($candidateLen == 2) {
+      if ($candidateLen == 0) {
         $j = array_search($candidateStr,$N0);
         if ($j != false) {
-          $output .= $D0[$j] . substr($seg,3)||'';
+          $output .= $D0[$j] . substr($seg,1)||'';
+          continue;
+        }
+      } else if ($candidateLen == 1) {
+        $j = array_search($candidateStr,$N1);
+        if ($j != false) {
+          $output .= $D1[$j] . substr($seg,2)||'';
+          continue;
+        }
+      } else if ($candidateLen == 2) {
+        $j = array_search($candidateStr,$N2);
+        if ($j != false) {
+          $output .= $D2[$j] . substr($seg,3)||'';
           continue;
         }
       } else if ($candidateLen == 3) {
-        $j = array_search($candidateStr,$N1);
+        $j = array_search($candidateStr,$N3);
         if ($j != false) {
-          $output .= $D1[$j] . substr($seg,4)||'';
+          $output .= $D3[$j] . substr($seg,4)||'';
           continue;
         }
       } else if ($candidateLen == 4) {
-        $j = array_search($candidateStr,$N2);
+        $j = array_search($candidateStr,$N4);
         if ($j != false) {
-          $output .= $D2[$j] . substr($seg,5)||'';
+          $output .= $D4[$j] . substr($seg,5)||'';
           continue;
         }
       } else if ($candidateLen == 5) {
-        $j = array_search($candidateStr,$N3);
+        $j = array_search($candidateStr,$N5);
         if ($j != false) {
-          $output .= $D3[$j] . substr($seg,6)||'';
+          $output .= $D5[$j] . substr($seg,6)||'';
           continue;
         }
       } else if ($candidateLen == 6) {
-        $j = array_search($candidateStr,$N4);
+        $j = array_search($candidateStr,$N6);
         if ($j != false) {
-          $output .= $D4[$j] . substr($seg,7)||'';
+          $output .= $D6[$j] . substr($seg,7)||'';
           continue;
         }
       } else if ($candidateLen == 7) {
-        $j = array_search($candidateStr,$N5);
+        $j = array_search($candidateStr,$N7);
         if ($j != false) {
-          $output .= $D5[$j] . substr($seg,8)||'';
+          $output .= $D7[$j] . substr($seg,8)||'';
           continue;
         }
       } else if ($candidateLen == 8) {
-        $j = array_search($candidateStr,$N6);
+        $j = array_search($candidateStr,$N8);
         if ($j != false) {
-          $output .= $D6[$j] . substr($seg,9)||'';
+          $output .= $D8[$j] . substr($seg,9)||'';
           continue;
         }
       } else if ($candidateLen == 9) {
-        $j = array_search($candidateStr,$N7);
+        $j = array_search($candidateStr,$N9);
         if ($j != false) {
-          $output .= $D7[$j] . substr($seg,10)||'';
+          $output .= $D9[$j] . substr($seg,10)||'';
           continue;
         }
       } else if ($candidateLen == 10) {
-        $j = array_search($candidateStr,$N8);
+        $j = array_search($candidateStr,$N10);
         if ($j != false) {
-          $output .= $D8[$j] . substr($seg,11)||'';
+          $output .= $D10[$j] . substr($seg,11)||'';
           continue;
         }
       } else if ($candidateLen == 11) {
-        $j = array_search($candidateStr,$N9);
+        $j = array_search($candidateStr,$N11);
         if ($j != false) {
-          $output .= $D9[$j] . substr($seg,12)||'';
+          $output .= $D11[$j] . substr($seg,12)||'';
           continue;
         }
       } else if ($candidateLen == 12) {
-        $j = array_search($candidateStr,$N10);
+        $j = array_search($candidateStr,$N12);
         if ($j != false) {
-          $output .= $D10[$j] . substr($seg,13)||'';
+          $output .= $D12[$j] . substr($seg,13)||'';
           continue;
         }
       } else if ($candidateLen == 13) {
-        $j = array_search($candidateStr,$N11);
+        $j = array_search($candidateStr,$N13);
         if ($j != false) {
-          $output .= $D11[$j] . substr($seg,14)||'';
+          $output .= $D13[$j] . substr($seg,14)||'';
           continue;
         }
       } else if ($candidateLen == 14) {
-        $j = array_search($candidateStr,$N12);
+        $j = array_search($candidateStr,$N14);
         if ($j != false) {
-          $output .= $D12[$j] . substr($seg,15)||'';
+          $output .= $D14[$j] . substr($seg,15)||'';
           continue;
         }
       } else if ($candidateLen == 15) {
-        $j = array_search($candidateStr,$N13);
+        $j = array_search($candidateStr,$N15);
         if ($j != false) {
-          $output .= $D13[$j] . substr($seg,16)||'';
+          $output .= $D15[$j] . substr($seg,16)||'';
           continue;
         }
       } else if ($candidateLen == 16) {
-        $j = array_search($candidateStr,$N14);
+        $j = array_search($candidateStr,$N16);
         if ($j != false) {
-          $output .= $D14[$j] . substr($seg,17)||'';
+          $output .= $D16[$j] . substr($seg,17)||'';
           continue;
         }
       } else if ($candidateLen == 17) {
-        $j = array_search($candidateStr,$N15);
+        $j = array_search($candidateStr,$N17);
         if ($j != false) {
-          $output .= $D15[$j] . substr($seg,18)||'';
+          $output .= $D17[$j] . substr($seg,18)||'';
           continue;
         }
       } else if ($candidateLen == 18) {
-        $j = array_search($candidateStr,$N16);
+        $j = array_search($candidateStr,$N18);
         if ($j != false) {
-          $output .= $D16[$j] . substr($seg,19)||'';
+          $output .= $D18[$j] . substr($seg,19)||'';
           continue;
         }
       } else if ($candidateLen == 19) {
-        $j = array_search($candidateStr,$N17);
+        $j = array_search($candidateStr,$N19);
         if ($j != false) {
-          $output .= $D17[$j] . substr($seg,20)||'';
+          $output .= $D19[$j] . substr($seg,20)||'';
           continue;
         }
       } else if ($candidateLen == 20) {
-        $j = array_search($candidateStr,$N18);
-        if ($j != false) {
-          $output .= $D18[$j] . substr($seg,21)||'';
-          continue;
-        }
-      } else if ($candidateLen == 21) {
-        $j = array_search($candidateStr,$N19);
-        if ($j != false) {
-          $output .= $D19[$j] . substr($seg,22)||'';
-          continue;
-        }
-      } else if ($candidateLen == 22) {
         if ($candidateStr == "DiacriticalDoubleAcute") {
-          $output .= "\u02DD" . substr($seg,23)||'';
+          $output .= "\u02DD" . substr($seg,21)||'';
           continue;
         } else if ($candidateStr == "NotSquareSupersetEqual") {
-          $output .= "\u22E3" . substr($seg,23)||'';
+          $output .= "\u22E3" . substr($seg,21)||'';
           continue;
         }
       } else if ($candidateStr == "NotNestedGreaterGreater") {
-        $output .= "\u2AA2\u0338" . substr($seg,24)||'';
+        $output .= "\u2AA2\u0338" . substr($seg,22)||'';
         continue;
-      } else if ($candidateLen == 24) {
+      } else if ($candidateLen == 22) {
         if ($candidateStr == "ClockwiseContourIntegral") {
-          $output .= "\u2232" . substr($seg,25)||'';
+          $output .= "\u2232" . substr($seg,23)||'';
           continue;
         } else if ($candidateStr == "DoubleLongLeftRightArrow") {
-          $output .= "\u27FA" . substr($seg,25)||'';
+          $output .= "\u27FA" . substr($seg,23)||'';
           continue;
         }
       } else if ($candidateStr == "CounterClockwiseContourIntegral") {
-        $output .= "\u2233" . substr($seg,32)||'';
+        $output .= "\u2233" . substr($seg,30)||'';
         continue;
       }
-      // Error: unknown named character reference
     }
     $output .= '&' . $seg;
   }
