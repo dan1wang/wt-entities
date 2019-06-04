@@ -2445,13 +2445,16 @@ html4EntitiesList.forEach( (el) => {
 const html5EntitiesSorted = {};
 html5EntitiesList.forEach( (el) => {
   const named = '"' + el + '"';
-  const decoded = '"' + entitiesDict['&' + el + ';'] + '"';
-  let len = el.length - 2;
+  const d = entitiesDict['&' + el + ';'];
+  const decoded = '"' + d + '"';
+  const decodedPhp = '"' + d.replace(/\\u([a-fA-F0-9]+)/g,'\\u{$1}') + '"';
+  let len = el.length;
   if (html5EntitiesSorted[len]) {
     html5EntitiesSorted[len].named.push(named);
     html5EntitiesSorted[len].decoded.push(decoded);
+    html5EntitiesSorted[len].decodedPhp.push(decodedPhp);
   } else {
-    html5EntitiesSorted[len] = {named: [named], decoded: [decoded] };
+    html5EntitiesSorted[len] = {named: [named], decoded: [decoded] , decodedPhp: [decodedPhp] };
   }
 });
 

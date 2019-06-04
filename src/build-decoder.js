@@ -20,7 +20,10 @@ let searchArrayFailed = -1;
 let searchStrFailed = -1;
 let subStr;   // varName.substring(start, end)  / substr(varName, start, end)
 let joinStr;  // varName += s1 + s2 ...;        / varName .= s1 . s2 ...;
+let codepointToUtf8; // string.fromCharCode(cp)
+
 let ReplacementChar; // '\uFFFD'
+
 function initLanguage(lang) {
   target = lang;
 
@@ -35,13 +38,13 @@ function initLanguage(lang) {
   searchStr = (v, s)   => target !== 'php' ? `${v}.indexOf(${s})`  : `strpos(${v},${s})`;
   searchArray = (v, s) => target !== 'php' ? `${v}.indexOf(${s})` : `array_search(${s},${v})`;
 
-  searchArrayFailed = target == 'php'?'false':'-1';
-  searchStrFailed = target == 'php'?'false':'-1';
+  searchArrayFailed = target !== 'php'?'-1':'false';
+  searchStrFailed = target !== 'php'?'-1':'false';
 
   subStr = (v, start, end) => {
     return target !== 'php'
       ? (end === undefined ? `${v}.substring(${start})` : `${v}.substring(${start},${end})`)
-      : (end === undefined ? `substr(${v},${start})||''` : `substr(${v},${start},${end})||''`);
+      : (end === undefined ? `substr(${v},${start})||''` : `substr(${v},${start},${end})`);
   };
 
   joinStr = (varName, ...strings) => {
@@ -56,12 +59,12 @@ function initLanguage(lang) {
     return expr;
   };
 
-  ReplacementChar = target !== 'php'?'\\u{FFFD}':'\\uFFFD';
+  ReplacementChar = target !== 'php'?'"\\uFFFD"':'"\\u{FFFD}"';
+
+  codepointToUtf8 = (cp) => target !== 'php'? `String.fromCharCode(${cp})` : `UtfNormal\\Utils::codepointToUtf8( ${cp} )`;
 }
 
-function charCode(s) { return s.charCodeAt(0); }
-
-function buildDecoder() {
+function buildDecodFunction() {
   const decoderSource =
 `function decodeCharReferences($text) {
 	if (${strLen('$text')} == 0) return '';
@@ -76,27 +79,25 @@ function buildDecoder() {
 			${declare('$isEmpty')} = false;
 			${declare('$j')} = 1;
 			%%NumericCRParser%%
-			if ( ($isEmpty) || (${charAt('$seq','$j')} !== ';') ) {
+			if ( ($isEmpty) || (${charAt('$seg','$j')} !== ';') ) {
 				${joinStr('$output', "'&'", '$seg')};
-				continue;
+			} else {
+				${joinStr('$output', 'decodeChar($cp)', subStr('$seg', 0, '++$j'))};
 			}
-			$j++;
 		} else {
-			${declare('$candidateLen')} = ${searchStr('$seg',"';'")};
-			if ($candidateLen == ${searchStrFailed}) {
+			${declare('$j')} = ${searchStr('$seg',"';'")};
+			if ($j == ${searchStrFailed}) {
 				${joinStr('$output', "'&'", '$seg')};
-				continue;
+			} else {
+				${joinStr('$output', `decodeEntity(${subStr('$seg', 0, '$j')})`, subStr('$seg', 0, '++$j'))};
 			}
-			${declare('$candidateStr')} = ${subStr('$seg', 0, '$candidateLen')};
-			${buildNamedCharRefDecoder()}
 		}
-		${joinStr('$output', "'&'", '$seg')};
 	}
 	return $output;
 }`;
 
   const phpNumericCRParser =
-`			$chr = $seg[1];
+			`$chr = $seg[1];
 			if (($chr == 'x') || ($chr == 'X')) {
 				do {
 					$hexChar = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','A','B','C','D','E','F'];
@@ -119,8 +120,9 @@ function buildDecoder() {
 				$isEmpty = $j < 1;
 			}`;
 
-const jsNumericCRParser =
-`			var $cc = $seg.charCodeAt(1);
+  const charCode = (s) => s.charCodeAt(0);
+  const jsNumericCRParser =
+			`var $cc = $seg.charCodeAt(1);
 			if (($cc == ${charCode('x')}) || ($cc == ${charCode('X')})) {
 				do {
 					$cc = $seg.charCodeAt(++$j);
@@ -133,7 +135,7 @@ const jsNumericCRParser =
 			} else {
 				while (1) {
 					if (($cc < ${charCode('0')}) || ($cc > ${charCode('9')})) break;
-					$cp = $cp * 10 + cc - ${charCode('0')};
+					$cp = $cp * 10 + $cc - ${charCode('0')};
 					$cc = $seg.charCodeAt(++$j);
 				}
 				$isEmpty = $j < 1;
@@ -143,110 +145,101 @@ const jsNumericCRParser =
 
 }
 
-function buildCodePointDecoder() {
+function buildDecodeCodepointFunction() {
   // HTML 5 standard:
   //   A numerical character reference to one of the following non-characters
-  //   is an error but should be converted AS-IS.
+  //   is an error but should be resolved AS-IS.
+  //
+  //   [#xFDD0-#xFDEF] |
+  //    #xFFFE |  #xFFFF | #x1FFFE | #x1FFFF | #x2FFFE | #x2FFFF | #x3FFFE | #x3FFFF |
+  //   #x4FFFE | #x4FFFF | #x5FFFE | #x5FFFF | #x6FFFE | #x6FFFF | #x7FFFE | #x7FFFF |
+  //   #x8FFFE | #x8FFFF | #x9FFFE | #x9FFFF | #xAFFFE | #xAFFFF | #xBFFFE | #xBFFFF |
+  //   #xCFFFE | #xCFFFF | #xDFFFE | #xDFFFF | #xEFFFE | #xEFFFF | #xFFFFE | #xFFFFF |
+  //   #x10FFFE | #x10FFFF
+  //
   //   See https://infra.spec.whatwg.org/#noncharacter
   //
-  //   0xFDD0-0xFDEF
-  //    0xFFFE,  0xFFFF, 0x1FFFE, 0x1FFFF, 0x2FFFE, 0x2FFFF, 0x3FFFE, 0x3FFFF,
-  //   0x4FFFE, 0x4FFFF, 0x5FFFE, 0x5FFFF, 0x6FFFE, 0x6FFFF, 0x7FFFE, 0x7FFFF,
-  //   0x8FFFE, 0x8FFFF, 0x9FFFE, 0x9FFFF, 0xAFFFE, 0xAFFFF, 0xBFFFE, 0xBFFFF,
-  //   0xCFFFE, 0xCFFFF, 0xDFFFE, 0xDFFFF, 0xEFFFE, 0xEFFFF, 0xFFFFE, 0xFFFFF,
-  //   0x10FFFE, 0x10FFFF
-  //
   // MediaWiki's current behavior
-  //   Replaces a character reference in the range of
-  //   [0xFDD0-0xFDEF|0xFFFE|0xFFFF] with 0xFFFD
+  //   Replaces a character reference in the following range with 0xFFFD:
+  //
+  //   [#xFDD0-#xFDEF] | #xFFFE | #xFFFF
   //
   // This codepoint decoder:
   //   Replaces a non-character character reference with 0xFFFD
   //
-  const nonCharCheck = `(($codepoint > ${0xFDD0-1}) && ($codepoint < ${0xFDEF+1})) || ($codepoint & ${0xFFFF} > ${0xFFFE-1})`;
-
+  const NON_CHAR_CHECK = `(($codepoint > ${0xFDD0-1}) && ($codepoint < ${0xFDEF+1})) || ($codepoint & ${0xFFFF} > ${0xFFFE-1})`;
 
   // HTML 5 standard:
-  //  Control-characters other than 0x09 (tab),
-  // 0x0A.
-  //   See https://infra.spec.whatwg.org/#noncharacter
+  //   A C0 control character other than one of the following is an error
+  //   but should be resolved AS-IS.
   //
-  //   0xFDD0-0xFDEF
-  //    0xFFFE,  0xFFFF, 0x1FFFE, 0x1FFFF, 0x2FFFE, 0x2FFFF, 0x3FFFE, 0x3FFFF,
-  //   0x4FFFE, 0x4FFFF, 0x5FFFE, 0x5FFFF, 0x6FFFE, 0x6FFFF, 0x7FFFE, 0x7FFFF,
-  //   0x8FFFE, 0x8FFFF, 0x9FFFE, 0x9FFFF, 0xAFFFE, 0xAFFFF, 0xBFFFE, 0xBFFFF,
-  //   0xCFFFE, 0xCFFFF, 0xDFFFE, 0xDFFFF, 0xEFFFE, 0xEFFFF, 0xFFFFE, 0xFFFFF,
-  //   0x10FFFE, 0x10FFFF
+  //   0x9 | 0xA | 0xC |     | 0x20
+  //
+  //   See https://html.spec.whatwg.org/multipage/parsing.html#numeric-character-reference-end-state
+  //   See https://infra.spec.whatwg.org/#c0-control
+  //
+  // XML standard:
+  //   A C0 control character other than one of the following is an error:
+  //
+  //   0x9 | 0xA |     | 0xD | 0x20
+  //
+  //   See https://www.w3.org/TR/xml/#charsets
   //
   // MediaWiki's current behavior
-  //   Replaces a character reference in the range of
-  //   [0xFDD0-0xFDEF|0xFFFE|0xFFFF] with 0xFFFD
+  //   A C0 control characters other than the following is an error and replaced with 0xFFFD:
   //
-  // This codepoint decoder:
-  //   Replaces a non-character character reference with 0xFFFD
+  //   0x9 | 0xA |     |     | 0x20
   //
-  // According to HTML 5 standard,
-  // some C0 character references should be replaced
-  // https://html.spec.whatwg.org/multipage/parsing.html#numeric-character-reference-end-state
-  // https://infra.spec.whatwg.org/#c0-control
-  /*
-  const C0_REPLACE = [
-    { from: 0x80, to: 0x20AC },
-    { from: 0x82, to: 0x201A },
-    { from: 0x83, to: 0x0192 },
-    { from: 0x84, to: 0x201E },
-    { from: 0x85, to: 0x2026 },
-    { from: 0x86, to: 0x2020 },
-    { from: 0x87, to: 0x2021 },
-    { from: 0x88, to: 0x02C6 },
-    { from: 0x89, to: 0x2030 },
-    { from: 0x8A, to: 0x0160 },
-    { from: 0x8B, to: 0x2039 },
-    { from: 0x8C, to: 0x0152 },
-    { from: 0x8E, to: 0x017D },
-    { from: 0x91, to: 0x2018 },
-    { from: 0x92, to: 0x2019 },
-    { from: 0x93, to: 0x201C },
-    { from: 0x94, to: 0x201D },
-    { from: 0x95, to: 0x2022 },
-    { from: 0x96, to: 0x2013 },
-    { from: 0x97, to: 0x2014 },
-    { from: 0x98, to: 0x02DC },
-    { from: 0x99, to: 0x2122 },
-    { from: 0x9A, to: 0x0161 },
-    { from: 0x9B, to: 0x203A },
-    { from: 0x9C, to: 0x0153 },
-    { from: 0x9E, to: 0x017E },
-    { from: 0x9F, to: 0x0178 }
-  ];
-  */
+  const C0_CHAR_CHECK = `($codepoint < ${0x1F+1}) && ($codepoint != ${0x09}) && ($codepoint != ${0x0A})`;
+
+  // HTML 5 standard:
+  //   A C1 control character is an error and is either replaced or resolved AS-IS
+  //
+  //   See https://html.spec.whatwg.org/multipage/parsing.html#numeric-character-reference-end-state
+  //
+  // XML standard:
+  //   A C1 control characters other than 0x85 is an error:
+  //
+  //   See https://www.w3.org/TR/xml/#charsets
+  //
+  // MediaWiki's current behavior
+  //   A C1 control characters is an error and replaced with 0xFFFD
+  //
+  const C1_CHAR_CHECK = `($codepoint > ${0x7F-1}) && ($codepoint < ${0x9F+1})`;
+
+  // HTML 5 standard:
+  //   A surrogate character reference is an error and replaced with 0xFFFD
+  //
+  // XML standard:
+  //   A surrogate character reference is an error
+  //
+  // MediaWiki's current behavior
+  //   A surrogate character reference is an error and replaced with 0xFFFD
+  //
+  const SURROGATE_CHECK = `($codepoint > ${0xD800-1}) && ($codepoint < ${0xDFFF+1})`;
 
   let parserSource =
-`decodeChar( $codepoint ) {}
-	if ($codepoint > ${0x10FFFF}) ${/*character reference outside unicode range*/''}
-		${ReplacementChar}
-	} else if ($nbr == 0) {${/*Error: null character reference*/''}
-		${ joinStr('$output', ReplacementChar, subStr('$seg','$j') )};
-      } else if ( ($nbr > ${0xD800-1}) && ($nbr < ${0xDFFF+1}) ) {${/*Error: surrogate character reference*/''}
-        ${ joinStr('$output', ReplacementChar, subStr('$seg','$j') )};
-      } else {
-        //  U+0009 TAB, U+000A LF, U+000C FF, U+000D CR, or U+0020 SPACE.
-        if (${nonCharCheck}) {
-          // ${joinStr('$output', "'&'", '$seg')};
-        } else if (($nbr < ${0x1F+1}) && ($nbr != ${0x09}) && ($nbr != ${0x0A} && ($nbr != ${0x0C}) {${/*Error: control character character reference*/''}
-        } else if (($nbr > ${0x7F-1}) && ($nbr < ${0x9F+1})) {${/*Error: control character character reference*/''}
-          // ${declare('$k')} = ${searchArray(`[${C0_REPLACE.map(el => el.from).join(',')}]`,'$nbr')};
-          // if ($k >= 0) $nbr = [${C0_REPLACE.map(el => el.to).join(',')}][$k];
-        }
-        output += String.fromCharCode($nbr) + seg.substring(j);
-      }
-      continue;`;
+`function decodeChar( $codepoint ) {
+	if (($codepoint > ${0x10FFFF}) ||
+		(${C0_CHAR_CHECK}) ||
+		(${C1_CHAR_CHECK}) ||
+		(${NON_CHAR_CHECK}) ||
+		(${SURROGATE_CHECK})) {
+		return ${ReplacementChar};
+	} else {
+		return ${codepointToUtf8('$codepoint')};
+	}
+}`;
   return parserSource;
 }
 
 let nameCharRefArrayCache; // storage of lookup arrays that we will cache
-function buildNamedCharRefDecoder() {
-  let parserSource = '';
+function buildDecodeEntityFunction() {
+  let parserSource =
+`function decodeEntity($name) {
+
+}`;
+
   let nameCharRefArrayCacheCount = 0;
   nameCharRefArrayCache = {};
 
@@ -255,7 +248,7 @@ function buildNamedCharRefDecoder() {
   Object.keys(entities).sort( (a,b) => parseInt(a) - parseInt(b) ).forEach((entityLen) => {
     entityLen = parseInt(entityLen);
     const named = entities[entityLen].named;
-    const decoded = entities[entityLen].decoded;
+    const decoded = target == 'php' ? entities[entityLen].decodedPhp : entities[entityLen].decoded;
     if (parserSource !== '') parserSource += ' else ';
     if (named.length > 2) {
       let namedCacheArray = '$N' + nameCharRefArrayCacheCount;
@@ -295,7 +288,7 @@ function buildNamedCharRefDecoder() {
 
 function buildJsDecoderSource() {
   initLanguage('javascript');
-  const decoderFunctionSource = buildDecoder();
+  const decoderFunctionSource = buildDecodFunction();
   const charRefArrayCacheSource =
     Object.keys(nameCharRefArrayCache)
       .map( (key) => `var ${key} = [${nameCharRefArrayCache[key].join(',')}];`)
@@ -304,16 +297,28 @@ function buildJsDecoderSource() {
   const source =
 `/* THIS IS GENERATED SOURCE. DO NOT EDIT */
 /* eslint-disable no-constant-condition */
-${charRefArrayCacheSource}
 ${decoderFunctionSource}
-module.exports = {decodeWTEntities};\n`;
+
+/**
+ * Return UTF-8 string for a codepoint if that is a valid
+ * character reference, otherwise U+FFFD REPLACEMENT CHARACTER.
+ * @param int $codepoint
+ * @return string
+ */
+${buildDecodeCodepointFunction()}
+
+${buildDecodeEntityFunction()}
+
+${charRefArrayCacheSource}
+
+module.exports = {decodeCharReferences};\n`.replace(/\t/g, '  ');
 
   fs.writeFileSync('./build/wt-entities.js', source );
 }
 
 function buildPhpDecoderSource() {
   initLanguage('php');
-  const decoderFunctionSource = buildDecoder();
+  const decoderFunctionSource = buildDecodFunction();
   const charRefArrayCacheSource =
     Object.keys(nameCharRefArrayCache)
       .map( (key) => `${key} = [${nameCharRefArrayCache[key].join(',')}];`)
@@ -322,7 +327,6 @@ function buildPhpDecoderSource() {
   const source =
 `<?php
 /* THIS IS GENERATED SOURCE. DO NOT EDIT */
-${charRefArrayCacheSource}
 
 /**
  * Decode any character references, numeric or named entities,
@@ -339,7 +343,12 @@ public static ${decoderFunctionSource}
  * @param int $codepoint
  * @return string
  */
-public static ${buildCodePointDecoder}
+public static ${buildDecodeCodepointFunction()}
+
+public static ${buildDecodeEntityFunction()}
+
+${charRefArrayCacheSource}
+
 ?>\n`;
 
   fs.writeFileSync('./build/wt-entities.php', source );

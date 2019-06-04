@@ -1,5 +1,213 @@
 /* THIS IS GENERATED SOURCE. DO NOT EDIT */
 /* eslint-disable no-constant-condition */
+function decodeCharReferences($text) {
+  if ($text.length == 0) return '';
+  var $fragments = $text.split('&');
+  if ($fragments.length == 1) return $text;
+
+  var $output = $fragments[0];
+  for (var $i = 1; $i < $fragments.length; $i++) {
+    var $seg = $fragments[$i];
+    if ($seg.charAt(0) == '#') {
+      var $cp = 0;
+      var $isEmpty = false;
+      var $j = 1;
+      var $cc = $seg.charCodeAt(1);
+      if (($cc == 120) || ($cc == 88)) {
+        do {
+          $cc = $seg.charCodeAt(++$j);
+          if (($cc > 47) && ($cc < 58)) { $cp = $cp * 16 + $cc - 48; }
+          else if (($cc > 96) && ($cc < 103)) { $cp = $cp * 16 + $cc - 87; }
+          else if (($cc > 64) && ($cc < 71)) { $cp = $cp * 16 + $cc - 55; }
+          else break;
+        } while (1);
+        $isEmpty = $j <= 2;
+      } else {
+        while (1) {
+          if (($cc < 48) || ($cc > 57)) break;
+          $cp = $cp * 10 + $cc - 48;
+          $cc = $seg.charCodeAt(++$j);
+        }
+        $isEmpty = $j < 1;
+      }
+      if ( ($isEmpty) || ($seg.charAt($j) !== ';') ) {
+        $output += '&' + $seg;
+      } else {
+        $output += decodeChar($cp) + $seg.substring(0,++$j);
+      }
+    } else {
+      var $candidateLen = $seg.indexOf(';');
+      if ($candidateLen == -1) {
+        $output += '&' + $seg;
+      } else {
+        var $candidateStr = $seg.substring(0,$candidateLen);
+      }
+      var $candidateStr = $seg.substring(0,$candidateLen);
+      if ($candidateLen == 2) {
+        $j = $N0.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D0[$j] + $seg.substring(3);
+          continue;
+        }
+      } else if ($candidateLen == 3) {
+        $j = $N1.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D1[$j] + $seg.substring(4);
+          continue;
+        }
+      } else if ($candidateLen == 4) {
+        $j = $N2.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D2[$j] + $seg.substring(5);
+          continue;
+        }
+      } else if ($candidateLen == 5) {
+        $j = $N3.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D3[$j] + $seg.substring(6);
+          continue;
+        }
+      } else if ($candidateLen == 6) {
+        $j = $N4.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D4[$j] + $seg.substring(7);
+          continue;
+        }
+      } else if ($candidateLen == 7) {
+        $j = $N5.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D5[$j] + $seg.substring(8);
+          continue;
+        }
+      } else if ($candidateLen == 8) {
+        $j = $N6.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D6[$j] + $seg.substring(9);
+          continue;
+        }
+      } else if ($candidateLen == 9) {
+        $j = $N7.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D7[$j] + $seg.substring(10);
+          continue;
+        }
+      } else if ($candidateLen == 10) {
+        $j = $N8.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D8[$j] + $seg.substring(11);
+          continue;
+        }
+      } else if ($candidateLen == 11) {
+        $j = $N9.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D9[$j] + $seg.substring(12);
+          continue;
+        }
+      } else if ($candidateLen == 12) {
+        $j = $N10.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D10[$j] + $seg.substring(13);
+          continue;
+        }
+      } else if ($candidateLen == 13) {
+        $j = $N11.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D11[$j] + $seg.substring(14);
+          continue;
+        }
+      } else if ($candidateLen == 14) {
+        $j = $N12.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D12[$j] + $seg.substring(15);
+          continue;
+        }
+      } else if ($candidateLen == 15) {
+        $j = $N13.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D13[$j] + $seg.substring(16);
+          continue;
+        }
+      } else if ($candidateLen == 16) {
+        $j = $N14.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D14[$j] + $seg.substring(17);
+          continue;
+        }
+      } else if ($candidateLen == 17) {
+        $j = $N15.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D15[$j] + $seg.substring(18);
+          continue;
+        }
+      } else if ($candidateLen == 18) {
+        $j = $N16.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D16[$j] + $seg.substring(19);
+          continue;
+        }
+      } else if ($candidateLen == 19) {
+        $j = $N17.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D17[$j] + $seg.substring(20);
+          continue;
+        }
+      } else if ($candidateLen == 20) {
+        $j = $N18.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D18[$j] + $seg.substring(21);
+          continue;
+        }
+      } else if ($candidateLen == 21) {
+        $j = $N19.indexOf($candidateStr);
+        if ($j != -1) {
+          $output += $D19[$j] + $seg.substring(22);
+          continue;
+        }
+      } else if ($candidateLen == 22) {
+        if ($candidateStr == "DiacriticalDoubleAcute") {
+          $output += "\u02DD" + $seg.substring(23);
+          continue;
+        } else if ($candidateStr == "NotSquareSupersetEqual") {
+          $output += "\u22E3" + $seg.substring(23);
+          continue;
+        }
+      } else if ($candidateStr == "NotNestedGreaterGreater") {
+        $output += "\u2AA2\u0338" + $seg.substring(24);
+        continue;
+      } else if ($candidateLen == 24) {
+        if ($candidateStr == "ClockwiseContourIntegral") {
+          $output += "\u2232" + $seg.substring(25);
+          continue;
+        } else if ($candidateStr == "DoubleLongLeftRightArrow") {
+          $output += "\u27FA" + $seg.substring(25);
+          continue;
+        }
+      } else if ($candidateStr == "CounterClockwiseContourIntegral") {
+        $output += "\u2233" + $seg.substring(32);
+        continue;
+      }
+    }
+  }
+  return $output;
+}
+/**
+ * Return UTF-8 string for a codepoint if that is a valid
+ * character reference, otherwise U+FFFD REPLACEMENT CHARACTER.
+ * @param int $codepoint
+ * @return string
+ */
+function decodeChar( $codepoint ) {
+  if (($codepoint > 1114111) ||
+    (($codepoint < 32) && ($codepoint != 9) && ($codepoint != 10)) ||
+    (($codepoint > 126) && ($codepoint < 160)) ||
+    ((($codepoint > 64975) && ($codepoint < 65008)) || ($codepoint & 65535 > 65533)) ||
+    (($codepoint > 55295) && ($codepoint < 57344))) {
+    return "\u{FFFD}";
+  } else {
+    return String.fromCharCode($codepoint);
+  }
+}
+
 var $N0 = ["gt","lt","ac","af","ap","DD","dd","ee","eg","el","ge","gE","gg","Gg","gl","Gt","ic","ii","Im","in","it","le","lE","lg","ll","Ll","Lt","mp","Mu","mu","ne","ni","Nu","nu","Or","or","oS","Pi","pi","pm","Pr","pr","Re","rx","Sc","sc","wp","wr","Xi","xi"];
 var $D0 = [">","<","\u223E","\u2061","\u2248","\u2145","\u2146","\u2147","\u2A9A","\u2A99","\u2265","\u2267","\u226B","\u22D9","\u2277","\u226B","\u2063","\u2148","\u2111","\u2208","\u2062","\u2264","\u2266","\u2276","\u226A","\u22D8","\u226A","\u2213","\u039C","\u03BC","\u2260","\u220B","\u039D","\u03BD","\u2A54","\u2228","\u24C8","\u03A0","\u03C0","\xB1","\u2ABB","\u227A","\u211C","\u211E","\u2ABC","\u227B","\u2118","\u2240","\u039E","\u03BE"];
 var $N1 = ["amp","acd","acE","Acy","acy","Afr","afr","And","and","ang","apE","ape","ast","Bcy","bcy","Bfr","bfr","bne","bot","cap","Cap","cfr","Cfr","Chi","chi","cir","cup","Cup","Dcy","dcy","deg","Del","Dfr","dfr","die","div","Dot","dot","Ecy","ecy","Efr","efr","egs","ell","els","ENG","eng","Eta","eta","ETH","eth","Fcy","fcy","Ffr","ffr","gap","Gcy","gcy","gEl","gel","geq","ges","Gfr","gfr","ggg","gla","glE","glj","gne","gnE","Hat","hfr","Hfr","Icy","icy","iff","ifr","Ifr","int","Int","Jcy","jcy","Jfr","jfr","Kcy","kcy","Kfr","kfr","lap","lat","Lcy","lcy","lEg","leg","leq","les","Lfr","lfr","lgE","lne","lnE","loz","lrm","lsh","Lsh","Map","map","Mcy","mcy","Mfr","mfr","mho","mid","nap","Ncy","ncy","Nfr","nfr","ngE","nge","nGg","nGt","ngt","nis","niv","nlE","nle","nLl","nLt","nlt","Not","not","npr","nsc","num","Ocy","ocy","Ofr","ofr","ogt","ohm","olt","ord","orv","par","Pcy","pcy","Pfr","pfr","Phi","phi","piv","pre","prE","Psi","psi","Qfr","qfr","Rcy","rcy","reg","REG","rfr","Rfr","Rho","rho","rlm","rsh","Rsh","sce","scE","Scy","scy","Sfr","sfr","shy","sim","smt","sol","squ","sub","Sub","sum","Sum","sup","Sup","Tab","Tau","tau","Tcy","tcy","Tfr","tfr","top","Ucy","ucy","Ufr","ufr","uml","Vcy","vcy","vee","Vee","Vfr","vfr","Wfr","wfr","Xfr","xfr","Ycy","ycy","yen","Yfr","yfr","Zcy","zcy","zfr","Zfr","zwj"];
@@ -40,219 +248,5 @@ var $N18 = ["CapitalDifferentialD","DoubleLeftRightArrow","DoubleLongRightArrow"
 var $D18 = ["\u2145","\u21D4","\u27F9","\u25AB","\u226B","\u2226","\u2A7E\u0338","\u22EC","\u22E2","\u201C","\u296F"];
 var $N19 = ["CloseCurlyDoubleQuote","DoubleContourIntegral","FilledVerySmallSquare","NegativeVeryThinSpace","NotPrecedesSlantEqual","NotRightTriangleEqual","NotSucceedsSlantEqual"];
 var $D19 = ["\u201D","\u222F","\u25AA","\u200B","\u22E0","\u22ED","\u22E1"];
-function decodeWTEntities($input) {
-  if ($input.length == 0) return '';
 
-  var $segments = $input.split('&');
-  if ($segments.length == 1) return $input;
-
-  var $output = $segments[0];
-  var $j = 0;
-  var $i = 1;
-  for (; $i < $segments.length; $i++) {
-    var $seg = $segments[$i];
-    if ($seg.charAt(0) == '#') {
-      var $nbr = 0;
-      var $isEmpty = false;
-      var $char = $seg.charAt(1);
-            var $cc = $seg.charCodeAt(1);
-        $j = 1;
-        if (($cc == 'x') || ($cc == 'X')) {
-           do {
-             $cc = $seg.charCodeAt(++$j);
-             if (($cc > 47) && ($cc < 58)) { $nbr = $nbr * 16 + $cc - 48; }
-             else if (($cc > 96) && ($cc < 103)) { $nbr = $nbr * 16 + $cc - 87; }
-             else if (($cc > 64) && ($cc < 71)) { $nbr = $nbr * 16 + $cc - 55; }
-             else break;
-           } while (1);
-           $isEmpty = $j <= 2;
-        } else {
-          while (1) {
-            if (($cc < 48) || ($cc > 57)) break;
-            $nbr = $nbr * 10 + cc - 48;
-            $cc = $seg.charCodeAt(++$j);
-           }
-           $isEmpty = $j < 1;
-        }
-      if ( ($isEmpty) ||
-          ($seq.charAt($j) !== ';')
-      ) {
-        $output += '&' + $seg;
-        continue;
-      }
-      $j++;
-      if ($nbr > 1114111) {
-        $output += \u{FFFD} + $seg.substring($j);
-      } else if ($nbr == 0) {
-        $output += \u{FFFD} + $seg.substring($j);
-      } else if ( ($nbr > 55295) && ($nbr < 57344) ) {
-        $output += \u{FFFD} + $seg.substring($j);
-      } else {
-        //  U+0009 TAB, U+000A LF, U+000C FF, U+000D CR, or U+0020 SPACE.
-        if ((($nbr > 64975) && ($nbr < 65008)) || ($nbr & 65535 > 65533)) {
-          // $output += '&' + $seg;
-          // continue;
-        } else if (($nbr == 13) || ($nbr < 32)) {
-        } else if (($nbr > 126) && ($nbr < 160)) {
-          // var $k = [128,130,131,132,133,134,135,136,137,138,139,140,142,145,146,147,148,149,150,151,152,153,154,155,156,158,159].indexOf($nbr);
-          // if ($k >= 0) $nbr = [8364,8218,402,8222,8230,8224,8225,710,8240,352,8249,338,381,8216,8217,8220,8221,8226,8211,8212,732,8482,353,8250,339,382,376][$k];
-        }
-        output += String.fromCharCode($nbr) + seg.substring(j);
-      }
-      continue;
-    } else {
-      var $candidateLen = $seg.indexOf(';');
-      if ($candidateLen == -1) {
-        $output += '&' + $seg;
-        continue;
-      }
-      var $candidateStr = $seg.substring(0,$candidateLen);
-      if ($candidateLen == 0) {
-        $j = $N0.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D0[$j] + $seg.substring(1);
-          continue;
-        }
-      } else if ($candidateLen == 1) {
-        $j = $N1.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D1[$j] + $seg.substring(2);
-          continue;
-        }
-      } else if ($candidateLen == 2) {
-        $j = $N2.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D2[$j] + $seg.substring(3);
-          continue;
-        }
-      } else if ($candidateLen == 3) {
-        $j = $N3.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D3[$j] + $seg.substring(4);
-          continue;
-        }
-      } else if ($candidateLen == 4) {
-        $j = $N4.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D4[$j] + $seg.substring(5);
-          continue;
-        }
-      } else if ($candidateLen == 5) {
-        $j = $N5.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D5[$j] + $seg.substring(6);
-          continue;
-        }
-      } else if ($candidateLen == 6) {
-        $j = $N6.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D6[$j] + $seg.substring(7);
-          continue;
-        }
-      } else if ($candidateLen == 7) {
-        $j = $N7.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D7[$j] + $seg.substring(8);
-          continue;
-        }
-      } else if ($candidateLen == 8) {
-        $j = $N8.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D8[$j] + $seg.substring(9);
-          continue;
-        }
-      } else if ($candidateLen == 9) {
-        $j = $N9.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D9[$j] + $seg.substring(10);
-          continue;
-        }
-      } else if ($candidateLen == 10) {
-        $j = $N10.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D10[$j] + $seg.substring(11);
-          continue;
-        }
-      } else if ($candidateLen == 11) {
-        $j = $N11.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D11[$j] + $seg.substring(12);
-          continue;
-        }
-      } else if ($candidateLen == 12) {
-        $j = $N12.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D12[$j] + $seg.substring(13);
-          continue;
-        }
-      } else if ($candidateLen == 13) {
-        $j = $N13.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D13[$j] + $seg.substring(14);
-          continue;
-        }
-      } else if ($candidateLen == 14) {
-        $j = $N14.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D14[$j] + $seg.substring(15);
-          continue;
-        }
-      } else if ($candidateLen == 15) {
-        $j = $N15.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D15[$j] + $seg.substring(16);
-          continue;
-        }
-      } else if ($candidateLen == 16) {
-        $j = $N16.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D16[$j] + $seg.substring(17);
-          continue;
-        }
-      } else if ($candidateLen == 17) {
-        $j = $N17.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D17[$j] + $seg.substring(18);
-          continue;
-        }
-      } else if ($candidateLen == 18) {
-        $j = $N18.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D18[$j] + $seg.substring(19);
-          continue;
-        }
-      } else if ($candidateLen == 19) {
-        $j = $N19.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D19[$j] + $seg.substring(20);
-          continue;
-        }
-      } else if ($candidateLen == 20) {
-        if ($candidateStr == "DiacriticalDoubleAcute") {
-          $output += "\u02DD" + $seg.substring(21);
-          continue;
-        } else if ($candidateStr == "NotSquareSupersetEqual") {
-          $output += "\u22E3" + $seg.substring(21);
-          continue;
-        }
-      } else if ($candidateStr == "NotNestedGreaterGreater") {
-        $output += "\u2AA2\u0338" + $seg.substring(22);
-        continue;
-      } else if ($candidateLen == 22) {
-        if ($candidateStr == "ClockwiseContourIntegral") {
-          $output += "\u2232" + $seg.substring(23);
-          continue;
-        } else if ($candidateStr == "DoubleLongLeftRightArrow") {
-          $output += "\u27FA" + $seg.substring(23);
-          continue;
-        }
-      } else if ($candidateStr == "CounterClockwiseContourIntegral") {
-        $output += "\u2233" + $seg.substring(30);
-        continue;
-      }
-    }
-    $output += '&' + $seg;
-  }
-  return $output;
-}
-module.exports = {decodeWTEntities};
+module.exports = {decodeCharReferences};
