@@ -36,160 +36,18 @@ function decodeCharReferences($text) {
         $output += decodeChar($cp) + $seg.substring(0,++$j);
       }
     } else {
-      var $candidateLen = $seg.indexOf(';');
-      if ($candidateLen == -1) {
+      var $len = $seg.indexOf(';');
+      if ($len == -1) {
         $output += '&' + $seg;
       } else {
-        var $candidateStr = $seg.substring(0,$candidateLen);
-      }
-      var $candidateStr = $seg.substring(0,$candidateLen);
-      if ($candidateLen == 2) {
-        $j = $N0.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D0[$j] + $seg.substring(3);
-          continue;
-        }
-      } else if ($candidateLen == 3) {
-        $j = $N1.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D1[$j] + $seg.substring(4);
-          continue;
-        }
-      } else if ($candidateLen == 4) {
-        $j = $N2.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D2[$j] + $seg.substring(5);
-          continue;
-        }
-      } else if ($candidateLen == 5) {
-        $j = $N3.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D3[$j] + $seg.substring(6);
-          continue;
-        }
-      } else if ($candidateLen == 6) {
-        $j = $N4.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D4[$j] + $seg.substring(7);
-          continue;
-        }
-      } else if ($candidateLen == 7) {
-        $j = $N5.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D5[$j] + $seg.substring(8);
-          continue;
-        }
-      } else if ($candidateLen == 8) {
-        $j = $N6.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D6[$j] + $seg.substring(9);
-          continue;
-        }
-      } else if ($candidateLen == 9) {
-        $j = $N7.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D7[$j] + $seg.substring(10);
-          continue;
-        }
-      } else if ($candidateLen == 10) {
-        $j = $N8.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D8[$j] + $seg.substring(11);
-          continue;
-        }
-      } else if ($candidateLen == 11) {
-        $j = $N9.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D9[$j] + $seg.substring(12);
-          continue;
-        }
-      } else if ($candidateLen == 12) {
-        $j = $N10.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D10[$j] + $seg.substring(13);
-          continue;
-        }
-      } else if ($candidateLen == 13) {
-        $j = $N11.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D11[$j] + $seg.substring(14);
-          continue;
-        }
-      } else if ($candidateLen == 14) {
-        $j = $N12.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D12[$j] + $seg.substring(15);
-          continue;
-        }
-      } else if ($candidateLen == 15) {
-        $j = $N13.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D13[$j] + $seg.substring(16);
-          continue;
-        }
-      } else if ($candidateLen == 16) {
-        $j = $N14.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D14[$j] + $seg.substring(17);
-          continue;
-        }
-      } else if ($candidateLen == 17) {
-        $j = $N15.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D15[$j] + $seg.substring(18);
-          continue;
-        }
-      } else if ($candidateLen == 18) {
-        $j = $N16.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D16[$j] + $seg.substring(19);
-          continue;
-        }
-      } else if ($candidateLen == 19) {
-        $j = $N17.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D17[$j] + $seg.substring(20);
-          continue;
-        }
-      } else if ($candidateLen == 20) {
-        $j = $N18.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D18[$j] + $seg.substring(21);
-          continue;
-        }
-      } else if ($candidateLen == 21) {
-        $j = $N19.indexOf($candidateStr);
-        if ($j != -1) {
-          $output += $D19[$j] + $seg.substring(22);
-          continue;
-        }
-      } else if ($candidateLen == 22) {
-        if ($candidateStr == "DiacriticalDoubleAcute") {
-          $output += "\u02DD" + $seg.substring(23);
-          continue;
-        } else if ($candidateStr == "NotSquareSupersetEqual") {
-          $output += "\u22E3" + $seg.substring(23);
-          continue;
-        }
-      } else if ($candidateStr == "NotNestedGreaterGreater") {
-        $output += "\u2AA2\u0338" + $seg.substring(24);
-        continue;
-      } else if ($candidateLen == 24) {
-        if ($candidateStr == "ClockwiseContourIntegral") {
-          $output += "\u2232" + $seg.substring(25);
-          continue;
-        } else if ($candidateStr == "DoubleLongLeftRightArrow") {
-          $output += "\u27FA" + $seg.substring(25);
-          continue;
-        }
-      } else if ($candidateStr == "CounterClockwiseContourIntegral") {
-        $output += "\u2233" + $seg.substring(32);
-        continue;
+        var $entity = decodeEntity($seg.substring(0,$len));
+        $output += $entity + $seg.substring(0,++$len);
       }
     }
   }
   return $output;
 }
+
 /**
  * Return UTF-8 string for a codepoint if that is a valid
  * character reference, otherwise U+FFFD REPLACEMENT CHARACTER.
@@ -202,9 +60,87 @@ function decodeChar( $codepoint ) {
     (($codepoint > 126) && ($codepoint < 160)) ||
     ((($codepoint > 64975) && ($codepoint < 65008)) || ($codepoint & 65535 > 65533)) ||
     (($codepoint > 55295) && ($codepoint < 57344))) {
-    return "\u{FFFD}";
+    return "\uFFFD";
   } else {
     return String.fromCharCode($codepoint);
+  }
+}
+
+function decodeEntity($name) {
+  var $len = $name.length;
+  var $j = 0;
+  if ($len == 2) {
+    $j = $N0.indexOf($name);
+    if ($j != -1) return $D0[$j];
+  } else if ($len == 3) {
+    $j = $N1.indexOf($name);
+    if ($j != -1) return $D1[$j];
+  } else if ($len == 4) {
+    $j = $N2.indexOf($name);
+    if ($j != -1) return $D2[$j];
+  } else if ($len == 5) {
+    $j = $N3.indexOf($name);
+    if ($j != -1) return $D3[$j];
+  } else if ($len == 6) {
+    $j = $N4.indexOf($name);
+    if ($j != -1) return $D4[$j];
+  } else if ($len == 7) {
+    $j = $N5.indexOf($name);
+    if ($j != -1) return $D5[$j];
+  } else if ($len == 8) {
+    $j = $N6.indexOf($name);
+    if ($j != -1) return $D6[$j];
+  } else if ($len == 9) {
+    $j = $N7.indexOf($name);
+    if ($j != -1) return $D7[$j];
+  } else if ($len == 10) {
+    $j = $N8.indexOf($name);
+    if ($j != -1) return $D8[$j];
+  } else if ($len == 11) {
+    $j = $N9.indexOf($name);
+    if ($j != -1) return $D9[$j];
+  } else if ($len == 12) {
+    $j = $N10.indexOf($name);
+    if ($j != -1) return $D10[$j];
+  } else if ($len == 13) {
+    $j = $N11.indexOf($name);
+    if ($j != -1) return $D11[$j];
+  } else if ($len == 14) {
+    $j = $N12.indexOf($name);
+    if ($j != -1) return $D12[$j];
+  } else if ($len == 15) {
+    $j = $N13.indexOf($name);
+    if ($j != -1) return $D13[$j];
+  } else if ($len == 16) {
+    $j = $N14.indexOf($name);
+    if ($j != -1) return $D14[$j];
+  } else if ($len == 17) {
+    $j = $N15.indexOf($name);
+    if ($j != -1) return $D15[$j];
+  } else if ($len == 18) {
+    $j = $N16.indexOf($name);
+    if ($j != -1) return $D16[$j];
+  } else if ($len == 19) {
+    $j = $N17.indexOf($name);
+    if ($j != -1) return $D17[$j];
+  } else if ($len == 20) {
+    $j = $N18.indexOf($name);
+    if ($j != -1) return $D18[$j];
+  } else if ($len == 21) {
+    $j = $N19.indexOf($name);
+    if ($j != -1) return $D19[$j];
+  } else if ($name == "DiacriticalDoubleAcute") {
+    return "\u02DD";
+  } else if ($name == "NotSquareSupersetEqual") {
+    return "\u22E3";
+  } else if ($name == "NotNestedGreaterGreater") {
+    return "\u2AA2\u0338";
+  } else if ($name == "ClockwiseContourIntegral") {
+    return "\u2232";
+  } else if ($name == "DoubleLongLeftRightArrow") {
+    return "\u27FA";
+  } else if ($name == "CounterClockwiseContourIntegral") {
+    return "\u2233";
   }
 }
 

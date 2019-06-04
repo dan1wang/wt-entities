@@ -48,156 +48,13 @@ public static function decodeCharReferences($text) {
 				$output .= decodeChar($cp) . substr($seg,0,++$j);
 			}
 		} else {
-			$candidateLen = strpos($seg,';');
-			if ($candidateLen == false) {
+			$len = strpos($seg,';');
+			if ($len == false) {
 				$output .= '&' . $seg;
 			} else {
-				$candidateStr = substr($seg,0,$candidateLen);
+				$entity = decodeEntity(substr($seg,0,$len));
+				$output .= $entity . substr($seg,0,++$len);
 			}
-			$candidateStr = substr($seg,0,$candidateLen);
-			if ($candidateLen == 2) {
-        $j = array_search($candidateStr,$N0);
-        if ($j != false) {
-          $output .= $D0[$j] . substr($seg,3)||'';
-          continue;
-        }
-      } else if ($candidateLen == 3) {
-        $j = array_search($candidateStr,$N1);
-        if ($j != false) {
-          $output .= $D1[$j] . substr($seg,4)||'';
-          continue;
-        }
-      } else if ($candidateLen == 4) {
-        $j = array_search($candidateStr,$N2);
-        if ($j != false) {
-          $output .= $D2[$j] . substr($seg,5)||'';
-          continue;
-        }
-      } else if ($candidateLen == 5) {
-        $j = array_search($candidateStr,$N3);
-        if ($j != false) {
-          $output .= $D3[$j] . substr($seg,6)||'';
-          continue;
-        }
-      } else if ($candidateLen == 6) {
-        $j = array_search($candidateStr,$N4);
-        if ($j != false) {
-          $output .= $D4[$j] . substr($seg,7)||'';
-          continue;
-        }
-      } else if ($candidateLen == 7) {
-        $j = array_search($candidateStr,$N5);
-        if ($j != false) {
-          $output .= $D5[$j] . substr($seg,8)||'';
-          continue;
-        }
-      } else if ($candidateLen == 8) {
-        $j = array_search($candidateStr,$N6);
-        if ($j != false) {
-          $output .= $D6[$j] . substr($seg,9)||'';
-          continue;
-        }
-      } else if ($candidateLen == 9) {
-        $j = array_search($candidateStr,$N7);
-        if ($j != false) {
-          $output .= $D7[$j] . substr($seg,10)||'';
-          continue;
-        }
-      } else if ($candidateLen == 10) {
-        $j = array_search($candidateStr,$N8);
-        if ($j != false) {
-          $output .= $D8[$j] . substr($seg,11)||'';
-          continue;
-        }
-      } else if ($candidateLen == 11) {
-        $j = array_search($candidateStr,$N9);
-        if ($j != false) {
-          $output .= $D9[$j] . substr($seg,12)||'';
-          continue;
-        }
-      } else if ($candidateLen == 12) {
-        $j = array_search($candidateStr,$N10);
-        if ($j != false) {
-          $output .= $D10[$j] . substr($seg,13)||'';
-          continue;
-        }
-      } else if ($candidateLen == 13) {
-        $j = array_search($candidateStr,$N11);
-        if ($j != false) {
-          $output .= $D11[$j] . substr($seg,14)||'';
-          continue;
-        }
-      } else if ($candidateLen == 14) {
-        $j = array_search($candidateStr,$N12);
-        if ($j != false) {
-          $output .= $D12[$j] . substr($seg,15)||'';
-          continue;
-        }
-      } else if ($candidateLen == 15) {
-        $j = array_search($candidateStr,$N13);
-        if ($j != false) {
-          $output .= $D13[$j] . substr($seg,16)||'';
-          continue;
-        }
-      } else if ($candidateLen == 16) {
-        $j = array_search($candidateStr,$N14);
-        if ($j != false) {
-          $output .= $D14[$j] . substr($seg,17)||'';
-          continue;
-        }
-      } else if ($candidateLen == 17) {
-        $j = array_search($candidateStr,$N15);
-        if ($j != false) {
-          $output .= $D15[$j] . substr($seg,18)||'';
-          continue;
-        }
-      } else if ($candidateLen == 18) {
-        $j = array_search($candidateStr,$N16);
-        if ($j != false) {
-          $output .= $D16[$j] . substr($seg,19)||'';
-          continue;
-        }
-      } else if ($candidateLen == 19) {
-        $j = array_search($candidateStr,$N17);
-        if ($j != false) {
-          $output .= $D17[$j] . substr($seg,20)||'';
-          continue;
-        }
-      } else if ($candidateLen == 20) {
-        $j = array_search($candidateStr,$N18);
-        if ($j != false) {
-          $output .= $D18[$j] . substr($seg,21)||'';
-          continue;
-        }
-      } else if ($candidateLen == 21) {
-        $j = array_search($candidateStr,$N19);
-        if ($j != false) {
-          $output .= $D19[$j] . substr($seg,22)||'';
-          continue;
-        }
-      } else if ($candidateLen == 22) {
-        if ($candidateStr == "DiacriticalDoubleAcute") {
-          $output .= "\u{02DD}" . substr($seg,23)||'';
-          continue;
-        } else if ($candidateStr == "NotSquareSupersetEqual") {
-          $output .= "\u{22E3}" . substr($seg,23)||'';
-          continue;
-        }
-      } else if ($candidateStr == "NotNestedGreaterGreater") {
-        $output .= "\u{2AA2}\u{0338}" . substr($seg,24)||'';
-        continue;
-      } else if ($candidateLen == 24) {
-        if ($candidateStr == "ClockwiseContourIntegral") {
-          $output .= "\u{2232}" . substr($seg,25)||'';
-          continue;
-        } else if ($candidateStr == "DoubleLongLeftRightArrow") {
-          $output .= "\u{27FA}" . substr($seg,25)||'';
-          continue;
-        }
-      } else if ($candidateStr == "CounterClockwiseContourIntegral") {
-        $output .= "\u{2233}" . substr($seg,32)||'';
-        continue;
-      }
 		}
 	}
 	return $output;
@@ -215,9 +72,87 @@ public static function decodeChar( $codepoint ) {
 		(($codepoint > 126) && ($codepoint < 160)) ||
 		((($codepoint > 64975) && ($codepoint < 65008)) || ($codepoint & 65535 > 65533)) ||
 		(($codepoint > 55295) && ($codepoint < 57344))) {
-		return "\uFFFD";
+		return "\u{FFFD}";
 	} else {
 		return UtfNormal\Utils::codepointToUtf8( $codepoint );
+	}
+}
+
+public static function decodeEntity($name) {
+	$len = strlen($name);
+	$j = 0;
+	if ($len == 2) {
+		$j = array_search($name,$N0);
+		if ($j != false) return $D0[$j];
+	} else if ($len == 3) {
+		$j = array_search($name,$N1);
+		if ($j != false) return $D1[$j];
+	} else if ($len == 4) {
+		$j = array_search($name,$N2);
+		if ($j != false) return $D2[$j];
+	} else if ($len == 5) {
+		$j = array_search($name,$N3);
+		if ($j != false) return $D3[$j];
+	} else if ($len == 6) {
+		$j = array_search($name,$N4);
+		if ($j != false) return $D4[$j];
+	} else if ($len == 7) {
+		$j = array_search($name,$N5);
+		if ($j != false) return $D5[$j];
+	} else if ($len == 8) {
+		$j = array_search($name,$N6);
+		if ($j != false) return $D6[$j];
+	} else if ($len == 9) {
+		$j = array_search($name,$N7);
+		if ($j != false) return $D7[$j];
+	} else if ($len == 10) {
+		$j = array_search($name,$N8);
+		if ($j != false) return $D8[$j];
+	} else if ($len == 11) {
+		$j = array_search($name,$N9);
+		if ($j != false) return $D9[$j];
+	} else if ($len == 12) {
+		$j = array_search($name,$N10);
+		if ($j != false) return $D10[$j];
+	} else if ($len == 13) {
+		$j = array_search($name,$N11);
+		if ($j != false) return $D11[$j];
+	} else if ($len == 14) {
+		$j = array_search($name,$N12);
+		if ($j != false) return $D12[$j];
+	} else if ($len == 15) {
+		$j = array_search($name,$N13);
+		if ($j != false) return $D13[$j];
+	} else if ($len == 16) {
+		$j = array_search($name,$N14);
+		if ($j != false) return $D14[$j];
+	} else if ($len == 17) {
+		$j = array_search($name,$N15);
+		if ($j != false) return $D15[$j];
+	} else if ($len == 18) {
+		$j = array_search($name,$N16);
+		if ($j != false) return $D16[$j];
+	} else if ($len == 19) {
+		$j = array_search($name,$N17);
+		if ($j != false) return $D17[$j];
+	} else if ($len == 20) {
+		$j = array_search($name,$N18);
+		if ($j != false) return $D18[$j];
+	} else if ($len == 21) {
+		$j = array_search($name,$N19);
+		if ($j != false) return $D19[$j];
+	} else if ($name == "DiacriticalDoubleAcute") {
+		return "\u{02DD}";
+	} else if ($name == "NotSquareSupersetEqual") {
+		return "\u{22E3}";
+	} else if ($name == "NotNestedGreaterGreater") {
+		return "\u{2AA2}\u{0338}";
+	} else if ($name == "ClockwiseContourIntegral") {
+		return "\u{2232}";
+	} else if ($name == "DoubleLongLeftRightArrow") {
+		return "\u{27FA}";
+	} else if ($name == "CounterClockwiseContourIntegral") {
+		return "\u{2233}";
 	}
 }
 

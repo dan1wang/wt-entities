@@ -85,11 +85,12 @@ function buildDecodFunction() {
 				${joinStr('$output', 'decodeChar($cp)', subStr('$seg', 0, '++$j'))};
 			}
 		} else {
-			${declare('$j')} = ${searchStr('$seg',"';'")};
-			if ($j == ${searchStrFailed}) {
+			${declare('$len')} = ${searchStr('$seg',"';'")};
+			if ($len == ${searchStrFailed}) {
 				${joinStr('$output', "'&'", '$seg')};
 			} else {
-				${joinStr('$output', `decodeEntity(${subStr('$seg', 0, '$j')})`, subStr('$seg', 0, '++$j'))};
+				${declare('$entity')} = decodeEntity(${subStr('$seg', 0, '$len')});
+				${joinStr('$output', '$entity', subStr('$seg', 0, '++$len'))};
 			}
 		}
 	}
@@ -140,6 +141,7 @@ function buildDecodFunction() {
 				}
 				$isEmpty = $j < 1;
 			}`;
+
   return decoderSource
     .replace('%%NumericCRParser%%',target=='php'?phpNumericCRParser:jsNumericCRParser);
 
@@ -234,61 +236,62 @@ function buildDecodeCodepointFunction() {
 }
 
 let nameCharRefArrayCache; // storage of lookup arrays that we will cache
+let nameCharRefArrayCacheCount;
 function buildDecodeEntityFunction() {
-  let parserSource =
-`function decodeEntity($name) {
-
-}`;
-
-  let nameCharRefArrayCacheCount = 0;
+  nameCharRefArrayCacheCount = 0;
   nameCharRefArrayCache = {};
-
+  let decoderSource = '';
   const entities = html5EntitiesSorted;
 
-  Object.keys(entities).sort( (a,b) => parseInt(a) - parseInt(b) ).forEach((entityLen) => {
-    entityLen = parseInt(entityLen);
-    const named = entities[entityLen].named;
-    const decoded = target == 'php' ? entities[entityLen].decodedPhp : entities[entityLen].decoded;
-    if (parserSource !== '') parserSource += ' else ';
-    if (named.length > 2) {
-      let namedCacheArray = '$N' + nameCharRefArrayCacheCount;
-      let decodedCacheArray = '$D' + nameCharRefArrayCacheCount;
-      nameCharRefArrayCache[namedCacheArray] = named;
-      nameCharRefArrayCache[decodedCacheArray] = decoded;
-      nameCharRefArrayCacheCount ++;
-      parserSource +=
-     `if ($candidateLen == ${entityLen}) {
-        $j = ${searchArray(`${namedCacheArray}`, '$candidateStr')};
-        if ($j != ${searchArrayFailed}) {
-          ${joinStr('$output', `${decodedCacheArray}[$j]`, subStr('$seg', entityLen+1))};
-          continue;
-        }
-      }`;
-    } else if (named.length == 2) {
-      parserSource +=
-     `if ($candidateLen == ${entityLen}) {
-        if ($candidateStr == ${named[0]}) {
-          ${joinStr('$output', decoded[0], subStr('$seg', entityLen+1))};
-          continue;
-        } else if ($candidateStr == ${named[1]}) {
-          ${joinStr('$output', decoded[1], subStr('$seg', entityLen+1))};
-          continue;
-        }
-      }`;
-    } else {
-      parserSource +=
-     `if ($candidateStr == ${named[0]}) {
-        ${joinStr('$output', decoded[0], subStr('$seg', entityLen+1))};
-        continue;
-      }`;
-    }
-  });
-  return parserSource;
+  Object.keys(entities)
+    .sort( (a,b) => parseInt(a) - parseInt(b) )
+    .forEach((entityLen) => {
+      entityLen = parseInt(entityLen);
+      const named = entities[entityLen].named; // e.g. ['"gt"','"ac"','"af"'...]
+      const decoded = target == 'php'
+        ? entities[entityLen].decodedPhp // e.g. ['">"','"\u{223E}"','"\u{2061}"'...]
+        : entities[entityLen].decoded;   // e.g. ['">"','"\u223E"', '"\u2061"'...]
+      if (decoderSource !== '') decoderSource += ' else ';
+      if (named.length > 2) {
+        let namedCacheArray = '$N' + nameCharRefArrayCacheCount;
+        let decodedCacheArray = '$D' + nameCharRefArrayCacheCount;
+        nameCharRefArrayCache[namedCacheArray] = named;
+        nameCharRefArrayCache[decodedCacheArray] = decoded;
+        nameCharRefArrayCacheCount ++;
+        decoderSource +=
+	`if ($len == ${entityLen}) {
+		$j = ${searchArray(`${namedCacheArray}`, '$name')};
+		if ($j != ${searchArrayFailed}) return ${decodedCacheArray}[$j];
+	}`;
+      } else if (named.length == 2) {
+        decoderSource +=
+	`if ($name == ${named[0]}) {
+		return ${decoded[0]};
+	} else if ($name == ${named[1]}) {
+		return ${decoded[1]};
+	}`;
+      } else {
+        decoderSource +=
+	`if ($name == ${named[0]}) {
+		return ${decoded[0]};
+	}`;
+      }
+    });
+
+  decoderSource =
+`function decodeEntity($name) {
+	${declare('$len')} = ${strLen('$name')};
+	${declare('$j')} = 0;
+	${decoderSource}
+}`;
+
+  return decoderSource;
 }
 
 function buildJsDecoderSource() {
   initLanguage('javascript');
-  const decoderFunctionSource = buildDecodFunction();
+  const decodeFunctionSrc = buildDecodFunction();
+  const decodeEntityFunctionSrc = buildDecodeEntityFunction();
   const charRefArrayCacheSource =
     Object.keys(nameCharRefArrayCache)
       .map( (key) => `var ${key} = [${nameCharRefArrayCache[key].join(',')}];`)
@@ -297,7 +300,7 @@ function buildJsDecoderSource() {
   const source =
 `/* THIS IS GENERATED SOURCE. DO NOT EDIT */
 /* eslint-disable no-constant-condition */
-${decoderFunctionSource}
+${decodeFunctionSrc}
 
 /**
  * Return UTF-8 string for a codepoint if that is a valid
@@ -307,7 +310,7 @@ ${decoderFunctionSource}
  */
 ${buildDecodeCodepointFunction()}
 
-${buildDecodeEntityFunction()}
+${decodeEntityFunctionSrc}
 
 ${charRefArrayCacheSource}
 
@@ -318,7 +321,8 @@ module.exports = {decodeCharReferences};\n`.replace(/\t/g, '  ');
 
 function buildPhpDecoderSource() {
   initLanguage('php');
-  const decoderFunctionSource = buildDecodFunction();
+  const decodeFunctionSrc = buildDecodFunction();
+  const decodeEntityFunctionSrc = buildDecodeEntityFunction();
   const charRefArrayCacheSource =
     Object.keys(nameCharRefArrayCache)
       .map( (key) => `${key} = [${nameCharRefArrayCache[key].join(',')}];`)
@@ -335,7 +339,7 @@ function buildPhpDecoderSource() {
  * @param string $text
  * @return string
  */
-public static ${decoderFunctionSource}
+public static ${decodeFunctionSrc}
 
 /**
  * Return UTF-8 string for a codepoint if that is a valid
@@ -345,7 +349,7 @@ public static ${decoderFunctionSource}
  */
 public static ${buildDecodeCodepointFunction()}
 
-public static ${buildDecodeEntityFunction()}
+public static ${decodeEntityFunctionSrc}
 
 ${charRefArrayCacheSource}
 
@@ -354,15 +358,11 @@ ${charRefArrayCacheSource}
   fs.writeFileSync('./build/wt-entities.php', source );
 }
 
-/*
+// TODO:
 // Character entity aliases accepted by MediaWiki
 // See mediawiki/includes/parser/Sanitizer.php
 // 'רלמ' => 'rlm',
 // 'رلم' => 'rlm',
-entities['&רלמ;'] = Object.assign({}, entities['&rlm;']);
-entities['&رلم;'] = Object.assign({}, entities['&rlm;']);
-const entitiesAliases = ['רלמ','رلم'];
-*/
 
 buildJsDecoderSource();
 buildPhpDecoderSource();
