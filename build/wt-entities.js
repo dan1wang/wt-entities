@@ -1,148 +1,178 @@
+
 /* THIS IS GENERATED SOURCE. DO NOT EDIT */
 /* eslint-disable no-constant-condition */
-function decodeCharReferences($text) {
-  if ($text.length == 0) return '';
-  var $fragments = $text.split('&');
-  if ($fragments.length == 1) return $text;
+const WtEntities = function() {
+  /**
+   * Decode any character references, numeric or named entities,
+   * in the text and return a UTF-8 string.
+   * ```
+   * decodeCharReferences('&quot;a & b&quot;'); // returns '"a & b"'
+   * ```
+   *
+   * @param {string} $text
+   * @return {string}
+   */
+  this.decodeCharReferences = function($text) {
+    if ($text.length == 0) return '';
+    var $fragments = $text.split('&');
+    if ($fragments.length == 1) return $text;
 
-  var $output = $fragments[0];
-  for (var $i = 1; $i < $fragments.length; $i++) {
-    var $seg = $fragments[$i];
-    if ($seg.charAt(0) == '#') {
-      var $cp = 0;
-      var $isEmpty = false;
-      var $j = 1;
-      var $cc = $seg.charCodeAt(1);
-      if (($cc == 120) || ($cc == 88)) {
-        do {
-          $cc = $seg.charCodeAt(++$j);
-          if (($cc > 47) && ($cc < 58)) { $cp = $cp * 16 + $cc - 48; }
-          else if (($cc > 96) && ($cc < 103)) { $cp = $cp * 16 + $cc - 87; }
-          else if (($cc > 64) && ($cc < 71)) { $cp = $cp * 16 + $cc - 55; }
-          else break;
-        } while (1);
-        $isEmpty = $j <= 2;
-      } else {
-        while (1) {
-          if (($cc < 48) || ($cc > 57)) break;
-          $cp = $cp * 10 + $cc - 48;
-          $cc = $seg.charCodeAt(++$j);
+    var $output = $fragments[0];
+    for (var $i = 1; $i < $fragments.length; $i++) {
+      var $seg = $fragments[$i];
+      if ($seg.charAt(0) == '#') {
+        var $cp = 0;
+        var $isEmpty = false;
+        var $j = 1;
+        var $cc = $seg.charCodeAt(1);
+        if (($cc == 120) || ($cc == 88)) {
+          do {
+            $cc = $seg.charCodeAt(++$j);
+            if (($cc > 47) && ($cc < 58)) { $cp = $cp * 16 + $cc - 48; }
+            else if (($cc > 96) && ($cc < 103)) { $cp = $cp * 16 + $cc - 87; }
+            else if (($cc > 64) && ($cc < 71)) { $cp = $cp * 16 + $cc - 55; }
+            else break;
+          } while (1);
+          $isEmpty = $j <= 2;
+        } else {
+          while (1) {
+            if (($cc < 48) || ($cc > 57)) break;
+            $cp = $cp * 10 + $cc - 48;
+            $cc = $seg.charCodeAt(++$j);
+          }
+          $isEmpty = $j < 1;
         }
-        $isEmpty = $j < 1;
-      }
-      if ( ($isEmpty) || ($seg.charAt($j) !== ';') ) {
-        $output += '&' + $seg;
+        if ( ($isEmpty) || ($seg.charAt($j) !== ';') ) {
+          $output += '&' + $seg;
+        } else {
+          $output += this.decodeCodepoint($cp) + $seg.substring(0,++$j);
+        }
       } else {
-        $output += decodeChar($cp) + $seg.substring(0,++$j);
-      }
-    } else {
-      var $len = $seg.indexOf(';');
-      if ($len == -1) {
-        $output += '&' + $seg;
-      } else {
-        var $entity = decodeEntity($seg.substring(0,$len));
-        $output += $entity + $seg.substring(0,++$len);
+        var $len = $seg.indexOf(';');
+        if ($len == -1) {
+          $output += '&' + $seg;
+        } else {
+          var $entity = this.decodeEntity($seg.substring(0,$len));
+          $output += $entity + $seg.substring(0,++$len);
+        }
       }
     }
-  }
-  return $output;
-}
+    return $output;
+  };
 
-/**
- * Return UTF-8 string for a codepoint if that is a valid
- * character reference, otherwise U+FFFD REPLACEMENT CHARACTER.
- * @param int $codepoint
- * @return string
- */
-function decodeChar( $codepoint ) {
-  if (($codepoint > 1114111) ||
-    (($codepoint < 32) && ($codepoint != 9) && ($codepoint != 10)) ||
-    (($codepoint > 126) && ($codepoint < 160)) ||
-    ((($codepoint > 64975) && ($codepoint < 65008)) || ($codepoint & 65535 > 65533)) ||
-    (($codepoint > 55295) && ($codepoint < 57344))) {
-    return "\uFFFD";
-  } else {
-    return String.fromCharCode($codepoint);
-  }
-}
+  /**
+   * Return UTF-8 string for a codepoint if that is a valid
+   * character reference, otherwise U+FFFD REPLACEMENT CHARACTER.
+   * ```
+   * decodeCodepoint(0x30); // returns '0'
+   * decodeCodepoint(0); // returns '\uFFFD'
+   * ```
+   *
+   * @param {number} $codepoint
+   * @return {string}
+   */
+  this.decodeCodepoint = function($codepoint) {
+    if (($codepoint > 1114111) ||
+      (($codepoint < 32) && ($codepoint != 9) && ($codepoint != 10)) ||
+      (($codepoint > 126) && ($codepoint < 160)) ||
+      ((($codepoint > 64975) && ($codepoint < 65008)) || ($codepoint & 65535 > 65533)) ||
+      (($codepoint > 55295) && ($codepoint < 57344))) {
+      return "\uFFFD";
+    } else {
+      return String.fromCharCode($codepoint);
+    }
+  };
 
-function decodeEntity($name) {
-  var $len = $name.length;
-  var $j = 0;
-  if ($len == 2) {
-    $j = $N0.indexOf($name);
-    if ($j != -1) return $D0[$j];
-  } else if ($len == 3) {
-    $j = $N1.indexOf($name);
-    if ($j != -1) return $D1[$j];
-  } else if ($len == 4) {
-    $j = $N2.indexOf($name);
-    if ($j != -1) return $D2[$j];
-  } else if ($len == 5) {
-    $j = $N3.indexOf($name);
-    if ($j != -1) return $D3[$j];
-  } else if ($len == 6) {
-    $j = $N4.indexOf($name);
-    if ($j != -1) return $D4[$j];
-  } else if ($len == 7) {
-    $j = $N5.indexOf($name);
-    if ($j != -1) return $D5[$j];
-  } else if ($len == 8) {
-    $j = $N6.indexOf($name);
-    if ($j != -1) return $D6[$j];
-  } else if ($len == 9) {
-    $j = $N7.indexOf($name);
-    if ($j != -1) return $D7[$j];
-  } else if ($len == 10) {
-    $j = $N8.indexOf($name);
-    if ($j != -1) return $D8[$j];
-  } else if ($len == 11) {
-    $j = $N9.indexOf($name);
-    if ($j != -1) return $D9[$j];
-  } else if ($len == 12) {
-    $j = $N10.indexOf($name);
-    if ($j != -1) return $D10[$j];
-  } else if ($len == 13) {
-    $j = $N11.indexOf($name);
-    if ($j != -1) return $D11[$j];
-  } else if ($len == 14) {
-    $j = $N12.indexOf($name);
-    if ($j != -1) return $D12[$j];
-  } else if ($len == 15) {
-    $j = $N13.indexOf($name);
-    if ($j != -1) return $D13[$j];
-  } else if ($len == 16) {
-    $j = $N14.indexOf($name);
-    if ($j != -1) return $D14[$j];
-  } else if ($len == 17) {
-    $j = $N15.indexOf($name);
-    if ($j != -1) return $D15[$j];
-  } else if ($len == 18) {
-    $j = $N16.indexOf($name);
-    if ($j != -1) return $D16[$j];
-  } else if ($len == 19) {
-    $j = $N17.indexOf($name);
-    if ($j != -1) return $D17[$j];
-  } else if ($len == 20) {
-    $j = $N18.indexOf($name);
-    if ($j != -1) return $D18[$j];
-  } else if ($len == 21) {
-    $j = $N19.indexOf($name);
-    if ($j != -1) return $D19[$j];
-  } else if ($name == "DiacriticalDoubleAcute") {
-    return "\u02DD";
-  } else if ($name == "NotSquareSupersetEqual") {
-    return "\u22E3";
-  } else if ($name == "NotNestedGreaterGreater") {
-    return "\u2AA2\u0338";
-  } else if ($name == "ClockwiseContourIntegral") {
-    return "\u2232";
-  } else if ($name == "DoubleLongLeftRightArrow") {
-    return "\u27FA";
-  } else if ($name == "CounterClockwiseContourIntegral") {
-    return "\u2233";
-  }
-}
+  /**
+   * Return UTF-8 string for a named entity if that is a valid
+   * character reference, otherwise pseudo-entity source
+   * ```
+   * decodeEntity('amp'); // returns '&'
+   * decodeEntity('foo'); // returns '&foo;'
+   * ```
+   *
+   * @param {string} $name
+   * @return {string}
+   */
+  this.decodeEntity = function($name) {
+    var $len = $name.length;
+    var $j = 0;
+    if ($len == 2) {
+      $j = $N0.indexOf($name);
+      if ($j != -1) return $D0[$j];
+    } else if ($len == 3) {
+      $j = $N1.indexOf($name);
+      if ($j != -1) return $D1[$j];
+    } else if ($len == 4) {
+      $j = $N2.indexOf($name);
+      if ($j != -1) return $D2[$j];
+    } else if ($len == 5) {
+      $j = $N3.indexOf($name);
+      if ($j != -1) return $D3[$j];
+    } else if ($len == 6) {
+      $j = $N4.indexOf($name);
+      if ($j != -1) return $D4[$j];
+    } else if ($len == 7) {
+      $j = $N5.indexOf($name);
+      if ($j != -1) return $D5[$j];
+    } else if ($len == 8) {
+      $j = $N6.indexOf($name);
+      if ($j != -1) return $D6[$j];
+    } else if ($len == 9) {
+      $j = $N7.indexOf($name);
+      if ($j != -1) return $D7[$j];
+    } else if ($len == 10) {
+      $j = $N8.indexOf($name);
+      if ($j != -1) return $D8[$j];
+    } else if ($len == 11) {
+      $j = $N9.indexOf($name);
+      if ($j != -1) return $D9[$j];
+    } else if ($len == 12) {
+      $j = $N10.indexOf($name);
+      if ($j != -1) return $D10[$j];
+    } else if ($len == 13) {
+      $j = $N11.indexOf($name);
+      if ($j != -1) return $D11[$j];
+    } else if ($len == 14) {
+      $j = $N12.indexOf($name);
+      if ($j != -1) return $D12[$j];
+    } else if ($len == 15) {
+      $j = $N13.indexOf($name);
+      if ($j != -1) return $D13[$j];
+    } else if ($len == 16) {
+      $j = $N14.indexOf($name);
+      if ($j != -1) return $D14[$j];
+    } else if ($len == 17) {
+      $j = $N15.indexOf($name);
+      if ($j != -1) return $D15[$j];
+    } else if ($len == 18) {
+      $j = $N16.indexOf($name);
+      if ($j != -1) return $D16[$j];
+    } else if ($len == 19) {
+      $j = $N17.indexOf($name);
+      if ($j != -1) return $D17[$j];
+    } else if ($len == 20) {
+      $j = $N18.indexOf($name);
+      if ($j != -1) return $D18[$j];
+    } else if ($len == 21) {
+      $j = $N19.indexOf($name);
+      if ($j != -1) return $D19[$j];
+    } else if ($name == "DiacriticalDoubleAcute") {
+      return "\u02DD";
+    } else if ($name == "NotSquareSupersetEqual") {
+      return "\u22E3";
+    } else if ($name == "NotNestedGreaterGreater") {
+      return "\u2AA2\u0338";
+    } else if ($name == "ClockwiseContourIntegral") {
+      return "\u2232";
+    } else if ($name == "DoubleLongLeftRightArrow") {
+      return "\u27FA";
+    } else if ($name == "CounterClockwiseContourIntegral") {
+      return "\u2233";
+    }
+  };
+
+};
 
 var $N0 = ["gt","lt","ac","af","ap","DD","dd","ee","eg","el","ge","gE","gg","Gg","gl","Gt","ic","ii","Im","in","it","le","lE","lg","ll","Ll","Lt","mp","Mu","mu","ne","ni","Nu","nu","Or","or","oS","Pi","pi","pm","Pr","pr","Re","rx","Sc","sc","wp","wr","Xi","xi"];
 var $D0 = [">","<","\u223E","\u2061","\u2248","\u2145","\u2146","\u2147","\u2A9A","\u2A99","\u2265","\u2267","\u226B","\u22D9","\u2277","\u226B","\u2063","\u2148","\u2111","\u2208","\u2062","\u2264","\u2266","\u2276","\u226A","\u22D8","\u226A","\u2213","\u039C","\u03BC","\u2260","\u220B","\u039D","\u03BD","\u2A54","\u2228","\u24C8","\u03A0","\u03C0","\xB1","\u2ABB","\u227A","\u211C","\u211E","\u2ABC","\u227B","\u2118","\u2240","\u039E","\u03BE"];
@@ -185,4 +215,5 @@ var $D18 = ["\u2145","\u21D4","\u27F9","\u25AB","\u226B","\u2226","\u2A7E\u0338"
 var $N19 = ["CloseCurlyDoubleQuote","DoubleContourIntegral","FilledVerySmallSquare","NegativeVeryThinSpace","NotPrecedesSlantEqual","NotRightTriangleEqual","NotSucceedsSlantEqual"];
 var $D19 = ["\u201D","\u222F","\u25AA","\u200B","\u22E0","\u22ED","\u22E1"];
 
-module.exports = {decodeCharReferences};
+const wtEntities = new WtEntities();
+module.exports = wtEntities;

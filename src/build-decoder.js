@@ -6,6 +6,7 @@
  */
 
 const fs = require('fs');
+const path = require('path');
 const { html5EntitiesSorted } = require('./entities-dict');
 
 let target = 'javascript';
@@ -21,7 +22,7 @@ let searchStrFailed = -1;
 let subStr;   // varName.substring(start, end)  / substr(varName, start, end)
 let joinStr;  // varName += s1 + s2 ...;        / varName .= s1 . s2 ...;
 let codepointToUtf8; // string.fromCharCode(cp)
-
+let Self; // 'this.' / 'self::'
 let ReplacementChar; // '\uFFFD'
 
 function initLanguage(lang) {
@@ -60,87 +61,86 @@ function initLanguage(lang) {
   };
 
   ReplacementChar = target !== 'php'?'"\\uFFFD"':'"\\u{FFFD}"';
+  Self = target !== 'php'? 'this.' : 'self::';
 
   codepointToUtf8 = (cp) => target !== 'php'? `String.fromCharCode(${cp})` : `UtfNormal\\Utils::codepointToUtf8( ${cp} )`;
 }
 
 function buildDecodFunction() {
   const decoderSource =
-`function decodeCharReferences($text) {
-	if (${strLen('$text')} == 0) return '';
-	${declare('$fragments')} = ${splitStr('$text',"'&'")};
-	if (${arrayLen('$fragments')} == 1) return $text;
+		`if (${strLen('$text')} == 0) return '';
+		${declare('$fragments')} = ${splitStr('$text',"'&'")};
+		if (${arrayLen('$fragments')} == 1) return $text;
 
-	${declare('$output')} = $fragments[0];
-	for (${declare('$i')} = 1; $i < ${arrayLen('$fragments')}; $i++) {
-		${declare('$seg')} = $fragments[$i];
-		if (${charAt('$seg',0)} == '#') {
-			${declare('$cp')} = 0;
-			${declare('$isEmpty')} = false;
-			${declare('$j')} = 1;
-			%%NumericCRParser%%
-			if ( ($isEmpty) || (${charAt('$seg','$j')} !== ';') ) {
-				${joinStr('$output', "'&'", '$seg')};
+		${declare('$output')} = $fragments[0];
+		for (${declare('$i')} = 1; $i < ${arrayLen('$fragments')}; $i++) {
+			${declare('$seg')} = $fragments[$i];
+			if (${charAt('$seg',0)} == '#') {
+				${declare('$cp')} = 0;
+				${declare('$isEmpty')} = false;
+				${declare('$j')} = 1;
+				%%NumericCRParser%%
+				if ( ($isEmpty) || (${charAt('$seg','$j')} !== ';') ) {
+					${joinStr('$output', "'&'", '$seg')};
+				} else {
+					${joinStr('$output', `${Self}decodeCodepoint($cp)`, subStr('$seg', 0, '++$j'))};
+				}
 			} else {
-				${joinStr('$output', 'decodeChar($cp)', subStr('$seg', 0, '++$j'))};
-			}
-		} else {
-			${declare('$len')} = ${searchStr('$seg',"';'")};
-			if ($len == ${searchStrFailed}) {
-				${joinStr('$output', "'&'", '$seg')};
-			} else {
-				${declare('$entity')} = decodeEntity(${subStr('$seg', 0, '$len')});
-				${joinStr('$output', '$entity', subStr('$seg', 0, '++$len'))};
+				${declare('$len')} = ${searchStr('$seg',"';'")};
+				if ($len == ${searchStrFailed}) {
+					${joinStr('$output', "'&'", '$seg')};
+				} else {
+					${declare('$entity')} = ${Self}decodeEntity(${subStr('$seg', 0, '$len')});
+					${joinStr('$output', '$entity', subStr('$seg', 0, '++$len'))};
+				}
 			}
 		}
-	}
-	return $output;
-}`;
+		return $output;`;
 
   const phpNumericCRParser =
-			`$chr = $seg[1];
-			if (($chr == 'x') || ($chr == 'X')) {
-				do {
-					$hexChar = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','A','B','C','D','E','F'];
-					$hexDigit = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 10, 11, 12, 13, 14, 15];
-					$k = array_search($seg[++$j], $hexChar);
-					if ($k == false) {
-						break;
-					} else {
-						$cp = $cp * 16 + $hexDig[$k];
-					}
-				} while (1);
-				$isEmpty = $j <= 2;
-			} else {
-				do {
-					$k = array_search($seg[$j], ['0','1','2','3','4','5','6','7','8','9']);
-					if ($k == false) break;
-					$cp = $cp * 10 + $k;
-					$j++;
-				} while (1)
-				$isEmpty = $j < 1;
-			}`;
+				`$chr = $seg[1];
+				if (($chr == 'x') || ($chr == 'X')) {
+					do {
+						$hexChar = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','A','B','C','D','E','F'];
+						$hexDigit = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 10, 11, 12, 13, 14, 15];
+						$k = array_search($seg[++$j], $hexChar);
+						if ($k == false) {
+							break;
+						} else {
+							$cp = $cp * 16 + $hexDig[$k];
+						}
+					} while (1);
+					$isEmpty = $j <= 2;
+				} else {
+					do {
+						$k = array_search($seg[$j], ['0','1','2','3','4','5','6','7','8','9']);
+						if ($k == false) break;
+						$cp = $cp * 10 + $k;
+						$j++;
+					} while (1);
+					$isEmpty = $j < 1;
+				}`;
 
   const charCode = (s) => s.charCodeAt(0);
   const jsNumericCRParser =
-			`var $cc = $seg.charCodeAt(1);
-			if (($cc == ${charCode('x')}) || ($cc == ${charCode('X')})) {
-				do {
-					$cc = $seg.charCodeAt(++$j);
-					if (($cc > ${charCode('0')-1}) && ($cc < ${charCode('9')+1})) { $cp = $cp * 16 + $cc - ${charCode('0')}; }
-					else if (($cc > ${charCode('a')-1}) && ($cc < ${charCode('f')+1})) { $cp = $cp * 16 + $cc - ${charCode('a')-10}; }
-					else if (($cc > ${charCode('A')-1}) && ($cc < ${charCode('F')+1})) { $cp = $cp * 16 + $cc - ${charCode('A')-10}; }
-					else break;
-				} while (1);
-				$isEmpty = $j <= 2;
-			} else {
-				while (1) {
-					if (($cc < ${charCode('0')}) || ($cc > ${charCode('9')})) break;
-					$cp = $cp * 10 + $cc - ${charCode('0')};
-					$cc = $seg.charCodeAt(++$j);
-				}
-				$isEmpty = $j < 1;
-			}`;
+				`var $cc = $seg.charCodeAt(1);
+				if (($cc == ${charCode('x')}) || ($cc == ${charCode('X')})) {
+					do {
+						$cc = $seg.charCodeAt(++$j);
+						if (($cc > ${charCode('0')-1}) && ($cc < ${charCode('9')+1})) { $cp = $cp * 16 + $cc - ${charCode('0')}; }
+						else if (($cc > ${charCode('a')-1}) && ($cc < ${charCode('f')+1})) { $cp = $cp * 16 + $cc - ${charCode('a')-10}; }
+						else if (($cc > ${charCode('A')-1}) && ($cc < ${charCode('F')+1})) { $cp = $cp * 16 + $cc - ${charCode('A')-10}; }
+						else break;
+					} while (1);
+					$isEmpty = $j <= 2;
+				} else {
+					while (1) {
+						if (($cc < ${charCode('0')}) || ($cc > ${charCode('9')})) break;
+						$cp = $cp * 10 + $cc - ${charCode('0')};
+						$cc = $seg.charCodeAt(++$j);
+					}
+					$isEmpty = $j < 1;
+				}`;
 
   return decoderSource
     .replace('%%NumericCRParser%%',target=='php'?phpNumericCRParser:jsNumericCRParser);
@@ -221,17 +221,15 @@ function buildDecodeCodepointFunction() {
   const SURROGATE_CHECK = `($codepoint > ${0xD800-1}) && ($codepoint < ${0xDFFF+1})`;
 
   let parserSource =
-`function decodeChar( $codepoint ) {
-	if (($codepoint > ${0x10FFFF}) ||
-		(${C0_CHAR_CHECK}) ||
-		(${C1_CHAR_CHECK}) ||
-		(${NON_CHAR_CHECK}) ||
-		(${SURROGATE_CHECK})) {
-		return ${ReplacementChar};
-	} else {
-		return ${codepointToUtf8('$codepoint')};
-	}
-}`;
+		`if (($codepoint > ${0x10FFFF}) ||
+			(${C0_CHAR_CHECK}) ||
+			(${C1_CHAR_CHECK}) ||
+			(${NON_CHAR_CHECK}) ||
+			(${SURROGATE_CHECK})) {
+			return ${ReplacementChar};
+		} else {
+			return ${codepointToUtf8('$codepoint')};
+		}`;
   return parserSource;
 }
 
@@ -259,103 +257,57 @@ function buildDecodeEntityFunction() {
         nameCharRefArrayCache[decodedCacheArray] = decoded;
         nameCharRefArrayCacheCount ++;
         decoderSource +=
-	`if ($len == ${entityLen}) {
-		$j = ${searchArray(`${namedCacheArray}`, '$name')};
-		if ($j != ${searchArrayFailed}) return ${decodedCacheArray}[$j];
-	}`;
+		`if ($len == ${entityLen}) {
+			$j = ${searchArray(`${namedCacheArray}`, '$name')};
+			if ($j != ${searchArrayFailed}) return ${decodedCacheArray}[$j];
+		}`;
       } else if (named.length == 2) {
         decoderSource +=
-	`if ($name == ${named[0]}) {
-		return ${decoded[0]};
-	} else if ($name == ${named[1]}) {
-		return ${decoded[1]};
-	}`;
+		`if ($name == ${named[0]}) {
+			return ${decoded[0]};
+		} else if ($name == ${named[1]}) {
+			return ${decoded[1]};
+		}`;
       } else {
         decoderSource +=
-	`if ($name == ${named[0]}) {
-		return ${decoded[0]};
-	}`;
+		`if ($name == ${named[0]}) {
+			return ${decoded[0]};
+		}`;
       }
     });
 
   decoderSource =
-`function decodeEntity($name) {
-	${declare('$len')} = ${strLen('$name')};
-	${declare('$j')} = 0;
-	${decoderSource}
-}`;
+		`${declare('$len')} = ${strLen('$name')};
+		${declare('$j')} = 0;
+		${decoderSource}`;
 
   return decoderSource;
 }
 
-function buildJsDecoderSource() {
-  initLanguage('javascript');
+function buildDecoderSource(targetLang) {
+  initLanguage(targetLang !== 'php'?'javascript':'php');
+  const fileExt = targetLang !== 'php'?'.js':'.php';
   const decodeFunctionSrc = buildDecodFunction();
   const decodeEntityFunctionSrc = buildDecodeEntityFunction();
+  const decodeCodepointFunctionSrc = buildDecodeCodepointFunction();
   const charRefArrayCacheSource =
     Object.keys(nameCharRefArrayCache)
-      .map( (key) => `var ${key} = [${nameCharRefArrayCache[key].join(',')}];`)
+      .map( (varName) => `${declare(varName)} = [${nameCharRefArrayCache[varName].join(',')}];`)
       .join('\n');
 
-  const source =
-`/* THIS IS GENERATED SOURCE. DO NOT EDIT */
-/* eslint-disable no-constant-condition */
-${decodeFunctionSrc}
+  let source =
+    fs.readFileSync(path.join(__dirname, 'template' + fileExt), 'utf8')
+      .replace('/*%%DECODE_CHAR_REFERENCES%%*/', decodeFunctionSrc)
+      .replace('/*%%DECODE_CODEPOINT%%*/', decodeCodepointFunctionSrc)
+      .replace('/*%%DECODE_ENTITY%%*/', decodeEntityFunctionSrc)
+      .replace('/*%%CHAR_REF_ARRAY_CACHE%%*/', charRefArrayCacheSource);
 
-/**
- * Return UTF-8 string for a codepoint if that is a valid
- * character reference, otherwise U+FFFD REPLACEMENT CHARACTER.
- * @param int $codepoint
- * @return string
- */
-${buildDecodeCodepointFunction()}
+  if (targetLang != 'php') source = source.replace(/\t/g, '  ');
 
-${decodeEntityFunctionSrc}
-
-${charRefArrayCacheSource}
-
-module.exports = {decodeCharReferences};\n`.replace(/\t/g, '  ');
-
-  fs.writeFileSync('./build/wt-entities.js', source );
-}
-
-function buildPhpDecoderSource() {
-  initLanguage('php');
-  const decodeFunctionSrc = buildDecodFunction();
-  const decodeEntityFunctionSrc = buildDecodeEntityFunction();
-  const charRefArrayCacheSource =
-    Object.keys(nameCharRefArrayCache)
-      .map( (key) => `${key} = [${nameCharRefArrayCache[key].join(',')}];`)
-      .join('\n');
-
-  const source =
-`<?php
-/* THIS IS GENERATED SOURCE. DO NOT EDIT */
-
-/**
- * Decode any character references, numeric or named entities,
- * in the text and return a UTF-8 string.
- *
- * @param string $text
- * @return string
- */
-public static ${decodeFunctionSrc}
-
-/**
- * Return UTF-8 string for a codepoint if that is a valid
- * character reference, otherwise U+FFFD REPLACEMENT CHARACTER.
- * @param int $codepoint
- * @return string
- */
-public static ${buildDecodeCodepointFunction()}
-
-public static ${decodeEntityFunctionSrc}
-
-${charRefArrayCacheSource}
-
-?>\n`;
-
-  fs.writeFileSync('./build/wt-entities.php', source );
+  fs.writeFileSync(
+    path.join(__dirname, '../build/wt-entities' + fileExt),
+    source
+  );
 }
 
 // TODO:
@@ -364,5 +316,5 @@ ${charRefArrayCacheSource}
 // 'רלמ' => 'rlm',
 // 'رلم' => 'rlm',
 
-buildJsDecoderSource();
-buildPhpDecoderSource();
+buildDecoderSource('javascript');
+buildDecoderSource('php');

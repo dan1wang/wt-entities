@@ -1,161 +1,181 @@
 <?php
 /* THIS IS GENERATED SOURCE. DO NOT EDIT */
 
-/**
- * Decode any character references, numeric or named entities,
- * in the text and return a UTF-8 string.
- *
- * @param string $text
- * @return string
- */
-public static function decodeCharReferences($text) {
-	if (strlen($text) == 0) return '';
-	$fragments = explode('&', $$text);
-	if (count($fragments) == 1) return $text;
+class wtEntities {
+	/**
+	 * Decode any character references, numeric or named entities,
+	 * in the text and return a UTF-8 string.
+	 * ```
+	 * decodeCharReferences('&quot;a & b&quot;'); // returns '"a & b"'
+	 * ```
+	 *
+	 * @param string $text
+	 * @return string
+	 */
+	public static function decodeCharReferences($text) {
+		if (strlen($text) == 0) return '';
+		$fragments = explode('&', $text);
+		if (count($fragments) == 1) return $text;
 
-	$output = $fragments[0];
-	for ($i = 1; $i < count($fragments); $i++) {
-		$seg = $fragments[$i];
-		if ($seg[0] == '#') {
-			$cp = 0;
-			$isEmpty = false;
-			$j = 1;
-			$chr = $seg[1];
-			if (($chr == 'x') || ($chr == 'X')) {
-				do {
-					$hexChar = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','A','B','C','D','E','F'];
-					$hexDigit = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 10, 11, 12, 13, 14, 15];
-					$k = array_search($seg[++$j], $hexChar);
-					if ($k == false) {
-						break;
-					} else {
-						$cp = $cp * 16 + $hexDig[$k];
-					}
-				} while (1);
-				$isEmpty = $j <= 2;
+		$output = $fragments[0];
+		for ($i = 1; $i < count($fragments); $i++) {
+			$seg = $fragments[$i];
+			if ($seg[0] == '#') {
+				$cp = 0;
+				$isEmpty = false;
+				$j = 1;
+				$chr = $seg[1];
+				if (($chr == 'x') || ($chr == 'X')) {
+					do {
+						$hexChar = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','A','B','C','D','E','F'];
+						$hexDigit = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 10, 11, 12, 13, 14, 15];
+						$k = array_search($seg[++$j], $hexChar);
+						if ($k == false) {
+							break;
+						} else {
+							$cp = $cp * 16 + $hexDig[$k];
+						}
+					} while (1);
+					$isEmpty = $j <= 2;
+				} else {
+					do {
+						$k = array_search($seg[$j], ['0','1','2','3','4','5','6','7','8','9']);
+						if ($k == false) break;
+						$cp = $cp * 10 + $k;
+						$j++;
+					} while (1);
+					$isEmpty = $j < 1;
+				}
+				if ( ($isEmpty) || ($seg[$j] !== ';') ) {
+					$output .= '&' . $seg;
+				} else {
+					$output .= self::decodeCodepoint($cp) . substr($seg,0,++$j);
+				}
 			} else {
-				do {
-					$k = array_search($seg[$j], ['0','1','2','3','4','5','6','7','8','9']);
-					if ($k == false) break;
-					$cp = $cp * 10 + $k;
-					$j++;
-				} while (1)
-				$isEmpty = $j < 1;
-			}
-			if ( ($isEmpty) || ($seg[$j] !== ';') ) {
-				$output .= '&' . $seg;
-			} else {
-				$output .= decodeChar($cp) . substr($seg,0,++$j);
-			}
-		} else {
-			$len = strpos($seg,';');
-			if ($len == false) {
-				$output .= '&' . $seg;
-			} else {
-				$entity = decodeEntity(substr($seg,0,$len));
-				$output .= $entity . substr($seg,0,++$len);
+				$len = strpos($seg,';');
+				if ($len == false) {
+					$output .= '&' . $seg;
+				} else {
+					$entity = self::decodeEntity(substr($seg,0,$len));
+					$output .= $entity . substr($seg,0,++$len);
+				}
 			}
 		}
+		return $output;
 	}
-	return $output;
-}
 
-/**
- * Return UTF-8 string for a codepoint if that is a valid
- * character reference, otherwise U+FFFD REPLACEMENT CHARACTER.
- * @param int $codepoint
- * @return string
- */
-public static function decodeChar( $codepoint ) {
-	if (($codepoint > 1114111) ||
-		(($codepoint < 32) && ($codepoint != 9) && ($codepoint != 10)) ||
-		(($codepoint > 126) && ($codepoint < 160)) ||
-		((($codepoint > 64975) && ($codepoint < 65008)) || ($codepoint & 65535 > 65533)) ||
-		(($codepoint > 55295) && ($codepoint < 57344))) {
-		return "\u{FFFD}";
-	} else {
-		return UtfNormal\Utils::codepointToUtf8( $codepoint );
+	/**
+	 * Return UTF-8 string for a codepoint if that is a valid
+	 * character reference, otherwise U+FFFD REPLACEMENT CHARACTER.
+	 * ```
+	 * decodeCodepoint(0x30); // returns '0'
+	 * decodeCodepoint(0); // returns '\u{FFFD}'
+	 * ```
+	 *
+	 * @param int $codepoint
+	 * @return string
+	 */
+	public static function decodeCodepoint($codepoint) {
+		if (($codepoint > 1114111) ||
+			(($codepoint < 32) && ($codepoint != 9) && ($codepoint != 10)) ||
+			(($codepoint > 126) && ($codepoint < 160)) ||
+			((($codepoint > 64975) && ($codepoint < 65008)) || ($codepoint & 65535 > 65533)) ||
+			(($codepoint > 55295) && ($codepoint < 57344))) {
+			return "\u{FFFD}";
+		} else {
+			return UtfNormal\Utils::codepointToUtf8( $codepoint );
+		}
 	}
-}
 
-public static function decodeEntity($name) {
-	$len = strlen($name);
-	$j = 0;
-	if ($len == 2) {
-		$j = array_search($name,$N0);
-		if ($j != false) return $D0[$j];
-	} else if ($len == 3) {
-		$j = array_search($name,$N1);
-		if ($j != false) return $D1[$j];
-	} else if ($len == 4) {
-		$j = array_search($name,$N2);
-		if ($j != false) return $D2[$j];
-	} else if ($len == 5) {
-		$j = array_search($name,$N3);
-		if ($j != false) return $D3[$j];
-	} else if ($len == 6) {
-		$j = array_search($name,$N4);
-		if ($j != false) return $D4[$j];
-	} else if ($len == 7) {
-		$j = array_search($name,$N5);
-		if ($j != false) return $D5[$j];
-	} else if ($len == 8) {
-		$j = array_search($name,$N6);
-		if ($j != false) return $D6[$j];
-	} else if ($len == 9) {
-		$j = array_search($name,$N7);
-		if ($j != false) return $D7[$j];
-	} else if ($len == 10) {
-		$j = array_search($name,$N8);
-		if ($j != false) return $D8[$j];
-	} else if ($len == 11) {
-		$j = array_search($name,$N9);
-		if ($j != false) return $D9[$j];
-	} else if ($len == 12) {
-		$j = array_search($name,$N10);
-		if ($j != false) return $D10[$j];
-	} else if ($len == 13) {
-		$j = array_search($name,$N11);
-		if ($j != false) return $D11[$j];
-	} else if ($len == 14) {
-		$j = array_search($name,$N12);
-		if ($j != false) return $D12[$j];
-	} else if ($len == 15) {
-		$j = array_search($name,$N13);
-		if ($j != false) return $D13[$j];
-	} else if ($len == 16) {
-		$j = array_search($name,$N14);
-		if ($j != false) return $D14[$j];
-	} else if ($len == 17) {
-		$j = array_search($name,$N15);
-		if ($j != false) return $D15[$j];
-	} else if ($len == 18) {
-		$j = array_search($name,$N16);
-		if ($j != false) return $D16[$j];
-	} else if ($len == 19) {
-		$j = array_search($name,$N17);
-		if ($j != false) return $D17[$j];
-	} else if ($len == 20) {
-		$j = array_search($name,$N18);
-		if ($j != false) return $D18[$j];
-	} else if ($len == 21) {
-		$j = array_search($name,$N19);
-		if ($j != false) return $D19[$j];
-	} else if ($name == "DiacriticalDoubleAcute") {
-		return "\u{02DD}";
-	} else if ($name == "NotSquareSupersetEqual") {
-		return "\u{22E3}";
-	} else if ($name == "NotNestedGreaterGreater") {
-		return "\u{2AA2}\u{0338}";
-	} else if ($name == "ClockwiseContourIntegral") {
-		return "\u{2232}";
-	} else if ($name == "DoubleLongLeftRightArrow") {
-		return "\u{27FA}";
-	} else if ($name == "CounterClockwiseContourIntegral") {
-		return "\u{2233}";
-	}
+	/**
+	 * Return UTF-8 string for a named entity if that is a valid
+	 * character reference, otherwise pseudo-entity source
+	 * ```
+	 * decodeEntity('amp'); // returns '&'
+	 * decodeEntity('foo'); // returns '&foo;'
+	 * ```
+	 *
+	 * @param string $name
+	 * @return string
+	 */
+	public static function decodeEntity($name) {
+ 		$len = strlen($name);
+		$j = 0;
+		if ($len == 2) {
+			$j = array_search($name,$N0);
+			if ($j != false) return $D0[$j];
+		} else if ($len == 3) {
+			$j = array_search($name,$N1);
+			if ($j != false) return $D1[$j];
+		} else if ($len == 4) {
+			$j = array_search($name,$N2);
+			if ($j != false) return $D2[$j];
+		} else if ($len == 5) {
+			$j = array_search($name,$N3);
+			if ($j != false) return $D3[$j];
+		} else if ($len == 6) {
+			$j = array_search($name,$N4);
+			if ($j != false) return $D4[$j];
+		} else if ($len == 7) {
+			$j = array_search($name,$N5);
+			if ($j != false) return $D5[$j];
+		} else if ($len == 8) {
+			$j = array_search($name,$N6);
+			if ($j != false) return $D6[$j];
+		} else if ($len == 9) {
+			$j = array_search($name,$N7);
+			if ($j != false) return $D7[$j];
+		} else if ($len == 10) {
+			$j = array_search($name,$N8);
+			if ($j != false) return $D8[$j];
+		} else if ($len == 11) {
+			$j = array_search($name,$N9);
+			if ($j != false) return $D9[$j];
+		} else if ($len == 12) {
+			$j = array_search($name,$N10);
+			if ($j != false) return $D10[$j];
+		} else if ($len == 13) {
+			$j = array_search($name,$N11);
+			if ($j != false) return $D11[$j];
+		} else if ($len == 14) {
+			$j = array_search($name,$N12);
+			if ($j != false) return $D12[$j];
+		} else if ($len == 15) {
+			$j = array_search($name,$N13);
+			if ($j != false) return $D13[$j];
+		} else if ($len == 16) {
+			$j = array_search($name,$N14);
+			if ($j != false) return $D14[$j];
+		} else if ($len == 17) {
+			$j = array_search($name,$N15);
+			if ($j != false) return $D15[$j];
+		} else if ($len == 18) {
+			$j = array_search($name,$N16);
+			if ($j != false) return $D16[$j];
+		} else if ($len == 19) {
+			$j = array_search($name,$N17);
+			if ($j != false) return $D17[$j];
+		} else if ($len == 20) {
+			$j = array_search($name,$N18);
+			if ($j != false) return $D18[$j];
+		} else if ($len == 21) {
+			$j = array_search($name,$N19);
+			if ($j != false) return $D19[$j];
+		} else if ($name == "DiacriticalDoubleAcute") {
+			return "\u{02DD}";
+		} else if ($name == "NotSquareSupersetEqual") {
+			return "\u{22E3}";
+		} else if ($name == "NotNestedGreaterGreater") {
+			return "\u{2AA2}\u{0338}";
+		} else if ($name == "ClockwiseContourIntegral") {
+			return "\u{2232}";
+		} else if ($name == "DoubleLongLeftRightArrow") {
+			return "\u{27FA}";
+		} else if ($name == "CounterClockwiseContourIntegral") {
+			return "\u{2233}";
+		}
+ 	}
 }
-
 $N0 = ["gt","lt","ac","af","ap","DD","dd","ee","eg","el","ge","gE","gg","Gg","gl","Gt","ic","ii","Im","in","it","le","lE","lg","ll","Ll","Lt","mp","Mu","mu","ne","ni","Nu","nu","Or","or","oS","Pi","pi","pm","Pr","pr","Re","rx","Sc","sc","wp","wr","Xi","xi"];
 $D0 = [">","<","\u{223E}","\u{2061}","\u{2248}","\u{2145}","\u{2146}","\u{2147}","\u{2A9A}","\u{2A99}","\u{2265}","\u{2267}","\u{226B}","\u{22D9}","\u{2277}","\u{226B}","\u{2063}","\u{2148}","\u{2111}","\u{2208}","\u{2062}","\u{2264}","\u{2266}","\u{2276}","\u{226A}","\u{22D8}","\u{226A}","\u{2213}","\u{039C}","\u{03BC}","\u{2260}","\u{220B}","\u{039D}","\u{03BD}","\u{2A54}","\u{2228}","\u{24C8}","\u{03A0}","\u{03C0}","\xB1","\u{2ABB}","\u{227A}","\u{211C}","\u{211E}","\u{2ABC}","\u{227B}","\u{2118}","\u{2240}","\u{039E}","\u{03BE}"];
 $N1 = ["amp","acd","acE","Acy","acy","Afr","afr","And","and","ang","apE","ape","ast","Bcy","bcy","Bfr","bfr","bne","bot","cap","Cap","cfr","Cfr","Chi","chi","cir","cup","Cup","Dcy","dcy","deg","Del","Dfr","dfr","die","div","Dot","dot","Ecy","ecy","Efr","efr","egs","ell","els","ENG","eng","Eta","eta","ETH","eth","Fcy","fcy","Ffr","ffr","gap","Gcy","gcy","gEl","gel","geq","ges","Gfr","gfr","ggg","gla","glE","glj","gne","gnE","Hat","hfr","Hfr","Icy","icy","iff","ifr","Ifr","int","Int","Jcy","jcy","Jfr","jfr","Kcy","kcy","Kfr","kfr","lap","lat","Lcy","lcy","lEg","leg","leq","les","Lfr","lfr","lgE","lne","lnE","loz","lrm","lsh","Lsh","Map","map","Mcy","mcy","Mfr","mfr","mho","mid","nap","Ncy","ncy","Nfr","nfr","ngE","nge","nGg","nGt","ngt","nis","niv","nlE","nle","nLl","nLt","nlt","Not","not","npr","nsc","num","Ocy","ocy","Ofr","ofr","ogt","ohm","olt","ord","orv","par","Pcy","pcy","Pfr","pfr","Phi","phi","piv","pre","prE","Psi","psi","Qfr","qfr","Rcy","rcy","reg","REG","rfr","Rfr","Rho","rho","rlm","rsh","Rsh","sce","scE","Scy","scy","Sfr","sfr","shy","sim","smt","sol","squ","sub","Sub","sum","Sum","sup","Sup","Tab","Tau","tau","Tcy","tcy","Tfr","tfr","top","Ucy","ucy","Ufr","ufr","uml","Vcy","vcy","vee","Vee","Vfr","vfr","Wfr","wfr","Xfr","xfr","Ycy","ycy","yen","Yfr","yfr","Zcy","zcy","zfr","Zfr","zwj"];
@@ -196,5 +216,4 @@ $N18 = ["CapitalDifferentialD","DoubleLeftRightArrow","DoubleLongRightArrow","Em
 $D18 = ["\u{2145}","\u{21D4}","\u{27F9}","\u{25AB}","\u{226B}","\u{2226}","\u{2A7E}\u{0338}","\u{22EC}","\u{22E2}","\u{201C}","\u{296F}"];
 $N19 = ["CloseCurlyDoubleQuote","DoubleContourIntegral","FilledVerySmallSquare","NegativeVeryThinSpace","NotPrecedesSlantEqual","NotRightTriangleEqual","NotSucceedsSlantEqual"];
 $D19 = ["\u{201D}","\u{222F}","\u{25AA}","\u{200B}","\u{22E0}","\u{22ED}","\u{22E1}"];
-
 ?>
