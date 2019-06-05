@@ -279,7 +279,8 @@ function buildDecodeEntityFunction() {
   decoderSource =
 		`${declare('$len')} = ${strLen('$name')};
 		${declare('$j')} = 0;
-		${decoderSource}`;
+		${decoderSource}
+		return ${joinStr(undefined,"'&'",'$name',"';'")};`;
 
   return decoderSource;
 }

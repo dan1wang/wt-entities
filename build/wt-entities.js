@@ -170,6 +170,7 @@ const WtEntities = function() {
     } else if ($name == "CounterClockwiseContourIntegral") {
       return "\u2233";
     }
+    return '&' + $name + ';';
   };
 
 };

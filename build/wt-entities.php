@@ -174,6 +174,7 @@ class wtEntities {
 		} else if ($name == "CounterClockwiseContourIntegral") {
 			return "\u{2233}";
 		}
+		return '&' . $name . ';';
  	}
 }
 $N0 = ["gt","lt","ac","af","ap","DD","dd","ee","eg","el","ge","gE","gg","Gg","gl","Gt","ic","ii","Im","in","it","le","lE","lg","ll","Ll","Lt","mp","Mu","mu","ne","ni","Nu","nu","Or","or","oS","Pi","pi","pm","Pr","pr","Re","rx","Sc","sc","wp","wr","Xi","xi"];
