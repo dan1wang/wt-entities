@@ -2393,7 +2393,8 @@ function toEscapedStr(charCode) {
     return String.fromCharCode(charCode);
   }
   if (charCode <= 0x0F)   return '\\x0' + hex;
-  if (charCode <= 0xFF)   return '\\x'  + hex;
+  if (charCode <= 0x9F)   return '\\x'  + hex;
+  if (charCode <= 0xFF)   return '\\u00'  + hex;
   if (charCode <= 0x0FFF) return '\\u0' + hex;
   if (charCode <= 0xFFFF) return '\\u' +  hex;
 

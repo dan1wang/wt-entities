@@ -23,6 +23,7 @@ let subStr;   // varName.substring(start, end)  / substr(varName, start, end)
 let joinStr;  // varName += s1 + s2 ...;        / varName .= s1 . s2 ...;
 let codepointToUtf8; // string.fromCharCode(cp)
 let Self; // 'this.' / 'self::'
+let Global; // varName / $GLOBALS[varName]
 let ReplacementChar; // '\uFFFD'
 
 function initLanguage(lang) {
@@ -45,7 +46,7 @@ function initLanguage(lang) {
   subStr = (v, start, end) => {
     return target !== 'php'
       ? (end === undefined ? `${v}.substring(${start})` : `${v}.substring(${start},${end})`)
-      : (end === undefined ? `substr(${v},${start})||''` : `substr(${v},${start},${end})`);
+      : (end === undefined ? `substr(${v},${start})` : `substr(${v},${start},${end})`);
   };
 
   joinStr = (varName, ...strings) => {
@@ -62,6 +63,7 @@ function initLanguage(lang) {
 
   ReplacementChar = target !== 'php'?'"\\uFFFD"':'"\\u{FFFD}"';
   Self = target !== 'php'? 'this.' : 'self::';
+  Global = (v) => target !== 'php'? v : `$GLOBALS['${String(v).slice(1)}']`;
 
   codepointToUtf8 = (cp) => target !== 'php'? `String.fromCharCode(${cp})` : `UtfNormal\\Utils::codepointToUtf8( ${cp} )`;
 }
@@ -83,7 +85,7 @@ function buildDecodFunction() {
 				if ( ($isEmpty) || (${charAt('$seg','$j')} !== ';') ) {
 					${joinStr('$output', "'&'", '$seg')};
 				} else {
-					${joinStr('$output', `${Self}decodeCodepoint($cp)`, subStr('$seg', 0, '++$j'))};
+					${joinStr('$output', `${Self}decodeCodepoint($cp)`, subStr('$seg', '++$j'))};
 				}
 			} else {
 				${declare('$len')} = ${searchStr('$seg',"';'")};
@@ -91,7 +93,7 @@ function buildDecodFunction() {
 					${joinStr('$output', "'&'", '$seg')};
 				} else {
 					${declare('$entity')} = ${Self}decodeEntity(${subStr('$seg', 0, '$len')});
-					${joinStr('$output', '$entity', subStr('$seg', 0, '++$len'))};
+					${joinStr('$output', '$entity', subStr('$seg', '++$len'))};
 				}
 			}
 		}
@@ -107,7 +109,7 @@ function buildDecodFunction() {
 						if ($k == false) {
 							break;
 						} else {
-							$cp = $cp * 16 + $hexDig[$k];
+							$cp = $cp * 16 + $hexDigit[$k];
 						}
 					} while (1);
 					$isEmpty = $j <= 2;
@@ -258,8 +260,8 @@ function buildDecodeEntityFunction() {
         nameCharRefArrayCacheCount ++;
         decoderSource +=
 		`if ($len == ${entityLen}) {
-			$j = ${searchArray(`${namedCacheArray}`, '$name')};
-			if ($j != ${searchArrayFailed}) return ${decodedCacheArray}[$j];
+			$j = ${searchArray(`${Global(namedCacheArray)}`, '$name')};
+			if ($j != ${searchArrayFailed}) return ${Global(decodedCacheArray)}[$j];
 		}`;
       } else if (named.length == 2) {
         decoderSource +=
