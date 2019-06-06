@@ -174,6 +174,7 @@ class wtEntities {
 		} else if ($name == "CounterClockwiseContourIntegral") {
 			return "\u{2233}";
 		}
+		return '&' . $name . ';';
  	}
 }
 
